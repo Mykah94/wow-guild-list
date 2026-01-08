@@ -2,17 +2,16 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>WoW Classic – Hurensohn Liste</title>
+<title>WoW Classic – Gildenliste</title>
 
-<!-- WOW-ÄHNLICHE FONT -->
+<!-- WOW-ähnliche Schrift -->
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
 
 <style>
 body {
     margin: 0;
     font-family: 'Cinzel', serif;
-    background:
-        radial-gradient(circle at top, #2b1d0e, #0d0a06);
+    background: radial-gradient(circle at top, #2b1d0e, #0d0a06);
     color: #f5e6c8;
 }
 
@@ -33,12 +32,6 @@ h1 {
     margin-bottom: 25px;
 }
 
-.form {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 12px;
-}
-
 input, select, button {
     padding: 10px;
     background: #120c05;
@@ -57,6 +50,13 @@ button {
 
 button:hover {
     filter: brightness(1.15);
+}
+
+.form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
 }
 
 .list {
@@ -89,14 +89,38 @@ button:hover {
     font-weight: bold;
     text-shadow: 0 0 6px #000;
 }
+
+/* Login Panel */
+#loginPanel {
+    max-width: 400px;
+    margin: 20px auto;
+    padding: 20px;
+    background: linear-gradient(180deg, #1a1208, #0d0904);
+    border: 2px solid #8c6a32;
+    border-radius: 12px;
+}
+
+#loginPanel input {
+    width: 100%;
+    margin-bottom: 10px;
+}
 </style>
 </head>
-
 <body>
 
 <div class="container">
-<h1>WoW Classic – Hurensohn Liste</h1>
+<h1>WoW Classic – Gildenliste</h1>
 
+<!-- Login / Register -->
+<div id="loginPanel">
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Passwort">
+    <button onclick="register()">Registrieren</button>
+    <button onclick="login()">Login</button>
+</div>
+
+<!-- Hauptinhalt, nur sichtbar nach Login -->
+<div id="mainContent" style="display:none;">
 <div class="form">
     <input id="name" placeholder="Name">
     <input id="guild" placeholder="Gilde">
@@ -124,12 +148,38 @@ button:hover {
     </select>
 
     <button onclick="addEntry()">Hinzufügen</button>
+    <button onclick="logout()">Logout</button>
 </div>
 
 <div class="list" id="list"></div>
 </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBOko8Wg-jCvz7aRPleNcbJCm8u2CYtjps",
+  authDomain: "wow-hs-liste.firebaseapp.com",
+  projectId: "wow-hs-liste",
+  storageBucket: "wow-hs-liste.firebasestorage.app",
+  messagingSenderId: "180764359810",
+  appId: "1:180764359810:web:03cef19546dcc32081889b"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+
+// 🔹 Klassen und Farben
 const classData = {
     Krieger:{ color:"#C79C6E", role:"Tank", icon:"https://wow.zamimg.com/images/wow/icons/large/class_warrior.jpg" },
     Magier:{ color:"#69CCF0", role:"DPS", icon:"https://wow.zamimg.com/images/wow/icons/large/class_mage.jpg" },
@@ -149,61 +199,87 @@ const raceIcons = {
     Tauren:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_tauren_male.jpg"
 };
 
-let entries = JSON.parse(localStorage.getItem("wowEntries")) || [];
+// 🔹 Auth Funktionen
+auth.onAuthStateChanged(user => {
+    if(user){
+        document.getElementById("loginPanel").style.display="none";
+        document.getElementById("mainContent").style.display="block";
+        loadEntries();
+    } else {
+        document.getElementById("loginPanel").style.display="block";
+        document.getElementById("mainContent").style.display="none";
+    }
+});
 
-function save() {
-    localStorage.setItem("wowEntries", JSON.stringify(entries));
+function register(){
+    const email=document.getElementById("email").value;
+    const password=document.getElementById("password").value;
+    auth.createUserWithEmailAndPassword(email,password)
+    .then(()=>alert("Registriert!"))
+    .catch(err=>alert(err.message));
 }
 
-function addEntry() {
-    const name = document.getElementById("name").value.trim();
-    const guild = document.getElementById("guild").value.trim();
-    const level = document.getElementById("level").value || "?";
-    const race = document.getElementById("race").value;
-    const wowClass = document.getElementById("wowClass").value;
+function login(){
+    const email=document.getElementById("email").value;
+    const password=document.getElementById("password").value;
+    auth.signInWithEmailAndPassword(email,password)
+    .catch(err=>alert(err.message));
+}
 
-    if (!name || !race || !wowClass) {
+function logout(){
+    auth.signOut();
+}
+
+// 🔹 Einträge Funktionen
+function addEntry(){
+    const name=document.getElementById("name").value.trim();
+    const guild=document.getElementById("guild").value.trim();
+    const level=document.getElementById("level").value || "?";
+    const race=document.getElementById("race").value;
+    const wowClass=document.getElementById("wowClass").value;
+
+    if(!name || !race || !wowClass){
         alert("Bitte Name, Rasse und Klasse angeben!");
         return;
     }
 
-    entries.push({
-        name,
-        guild,
-        level,
-        race,
-        class: wowClass,
-        role: classData[wowClass].role
-    });
-
-    save();
-    renderList();
-}
-
-function renderList() {
-    const list = document.getElementById("list");
-    list.innerHTML = "";
-
-    entries.forEach(e => {
-        const div = document.createElement("div");
-        div.className = "entry";
-        div.style.borderLeftColor = classData[e.class].color;
-
-        div.innerHTML = `
-            <div class="icon" style="background-image:url(${raceIcons[e.race]})"></div>
-            <div class="icon" style="background-image:url(${classData[e.class].icon})"></div>
-            <div><strong>${e.name}</strong><br><small>${e.guild}</small></div>
-            <div>${e.race}</div>
-            <div>Lvl ${e.level}</div>
-            <div class="class-name" style="color:${classData[e.class].color}">
-                ${e.class}<br><small>${e.role}</small>
-            </div>
-        `;
-        list.appendChild(div);
+    db.collection("entries").add({
+        name, guild, level, race, class:wowClass, role:classData[wowClass].role,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(()=> {
+        document.getElementById("name").value="";
+        document.getElementById("guild").value="";
+        document.getElementById("level").value="";
+        document.getElementById("race").value="";
+        document.getElementById("wowClass").value="";
     });
 }
 
-renderList();
+function loadEntries(){
+    db.collection("entries")
+      .orderBy("createdAt")
+      .onSnapshot(snapshot => {
+        const list = document.getElementById("list");
+        list.innerHTML="";
+        snapshot.forEach(doc => {
+            const e = doc.data();
+            const div=document.createElement("div");
+            div.className="entry";
+            div.style.borderLeftColor=classData[e.class].color;
+            div.innerHTML=`
+                <div class="icon" style="background-image:url(${raceIcons[e.race]})"></div>
+                <div class="icon" style="background-image:url(${classData[e.class].icon})"></div>
+                <div><strong>${e.name}</strong><br><small>${e.guild}</small></div>
+                <div>${e.race}</div>
+                <div>Lvl ${e.level}</div>
+                <div class="class-name" style="color:${classData[e.class].color}">
+                    ${e.class}<br><small>${e.role}</small>
+                </div>
+            `;
+            list.appendChild(div);
+        });
+      });
+}
 </script>
 
 </body>

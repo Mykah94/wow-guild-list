@@ -13,6 +13,7 @@ body {
     background: radial-gradient(circle at top, #2b1d0e, #0d0a06);
     color: #f5e6c8;
 }
+
 .container {
     max-width: 1200px;
     margin: 40px auto;
@@ -21,30 +22,27 @@ body {
     border: 6px solid #c9a44c;
     border-radius: 14px;
 }
+
 h1 {
     text-align: center;
     color: #ffd36a;
-    margin-bottom: 20px;
 }
+
 input, select, button {
     padding: 10px;
     background: #120c05;
     border: 2px solid #9c7c3f;
     color: #f5e6c8;
     border-radius: 6px;
-    font-family: inherit;
 }
+
 button {
     cursor: pointer;
     background: linear-gradient(to bottom, #e0b75a, #8a6b2f);
     color: #1b1206;
     font-weight: bold;
 }
-.form {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 12px;
-}
+
 #loginPanel {
     max-width: 400px;
     margin: 20px auto;
@@ -52,23 +50,44 @@ button {
     background: #1a1208;
     border-radius: 12px;
 }
+
+.form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.list {
+    margin-top: 30px;
+}
+
+/* 🔥 LISTEN-EINTRAG – KORREKT */
 .entry {
     display: grid;
-    grid-template-columns: 44px 44px 1.5fr 1fr 80px 1fr;
+    grid-template-columns: 44px 44px 2fr 1fr 80px 1.2fr;
     gap: 12px;
     align-items: center;
     padding: 12px;
-    margin-bottom: 10px;
     background: linear-gradient(180deg, #1a1208, #0d0904);
+    border: 2px solid #8c6a32;
     border-left: 8px solid;
     border-radius: 8px;
 }
+
+/* 🔥 ICONS FIX */
 .icon {
     width: 40px;
     height: 40px;
     background-size: cover;
     background-position: center;
     border: 2px solid #c9a44c;
+    border-radius: 4px;
+}
+
+.class-name {
+    font-weight: bold;
+    text-shadow: 0 0 6px #000;
 }
 </style>
 </head>
@@ -117,29 +136,15 @@ button {
     <button id="logoutBtn">Logout</button>
 </div>
 
-<div id="list"></div>
+<div class="list" id="list"></div>
 </div>
 </div>
 
 <!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  query,
-  orderBy,
-  onSnapshot,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 /* CONFIG */
 const firebaseConfig = {
@@ -176,33 +181,42 @@ const raceIcons = {
     Tauren:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_tauren_male.jpg"
 };
 
-/* DOM */
-const emailInput = document.getElementById("email");
-const passwordInput = document.getElementById("password");
-
 /* AUTH */
-document.getElementById("registerBtn").onclick = () =>
-    createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
-        .then(()=>alert("Registriert"))
-        .catch(e=>alert(e.message));
+const email = document.getElementById("email");
+const password = document.getElementById("password");
+
+document.getElementById("registerBtn").onclick = async () => {
+    const cred = await createUserWithEmailAndPassword(auth, email.value, password.value);
+    await setDoc(doc(db,"users",cred.user.uid), { role:"pending", email:email.value });
+    alert("Registriert – Freigabe durch Admin nötig");
+    signOut(auth);
+};
 
 document.getElementById("loginBtn").onclick = () =>
-    signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
-        .catch(e=>alert(e.message));
+    signInWithEmailAndPassword(auth, email.value, password.value).catch(e=>alert(e.message));
 
 document.getElementById("logoutBtn").onclick = () => signOut(auth);
 
-onAuthStateChanged(auth, user => {
-    document.getElementById("loginPanel").style.display = user ? "none" : "block";
-    document.getElementById("mainContent").style.display = user ? "block" : "none";
-    if (user) loadEntries();
+onAuthStateChanged(auth, async user => {
+    if (!user) {
+        loginPanel.style.display="block";
+        mainContent.style.display="none";
+        return;
+    }
+    const snap = await getDoc(doc(db,"users",user.uid));
+    if (!snap.exists() || snap.data().role==="pending") {
+        alert("Account noch nicht freigeschaltet");
+        signOut(auth);
+        return;
+    }
+    loginPanel.style.display="none";
+    mainContent.style.display="block";
+    loadEntries();
 });
 
-/* ADD ENTRY */
+/* ADD */
 document.getElementById("addBtn").onclick = async () => {
     const name = document.getElementById("name").value.trim();
-    const guild = document.getElementById("guild").value.trim();
-    const level = document.getElementById("level").value || "?";
     const race = document.getElementById("race").value;
     const wowClass = document.getElementById("wowClass").value;
 
@@ -212,7 +226,10 @@ document.getElementById("addBtn").onclick = async () => {
     }
 
     await addDoc(collection(db,"entries"), {
-        name, guild, level, race,
+        name,
+        guild: guild.value,
+        level: level.value || "?",
+        race,
         class: wowClass,
         role: classData[wowClass].role,
         createdAt: serverTimestamp()
@@ -220,26 +237,24 @@ document.getElementById("addBtn").onclick = async () => {
 };
 
 /* LOAD */
-function loadEntries(){
+function loadEntries() {
     const q = query(collection(db,"entries"), orderBy("createdAt"));
     onSnapshot(q, snap => {
-        const list = document.getElementById("list");
-        list.innerHTML = "";
+        list.innerHTML="";
         snap.forEach(doc => {
             const e = doc.data();
-            const div = document.createElement("div");
-            div.className = "entry";
+            const div=document.createElement("div");
+            div.className="entry";
             div.style.borderLeftColor = classData[e.class].color;
             div.innerHTML = `
                 <div class="icon" style="background-image:url(${raceIcons[e.race]})"></div>
                 <div class="icon" style="background-image:url(${classData[e.class].icon})"></div>
-                <div><strong>${e.name}</strong><br><small>${e.guild || ""}</small></div>
+                <div><strong>${e.name}</strong><br><small>${e.guild||""}</small></div>
                 <div>${e.race}</div>
                 <div>Lvl ${e.level}</div>
-                <div style="color:${classData[e.class].color}">
-                    <strong>${e.class}</strong><br><small>${e.role}</small>
-                </div>
-            `;
+                <div class="class-name" style="color:${classData[e.class].color}">
+                    ${e.class}<br><small>${e.role}</small>
+                </div>`;
             list.appendChild(div);
         });
     });

@@ -26,7 +26,7 @@ button { cursor:pointer; background:linear-gradient(to bottom,#e0b75a,#8a6b2f); 
 </head>
 <body>
 <div class="container">
-<h1>WoW Classic – Hurensohn-Liste</h1>
+<h1>WoW Classic – Gildenliste</h1>
 
 <!-- LOGIN -->
 <div id="loginPanel">
@@ -121,12 +121,20 @@ const crimeInput=document.getElementById("crime");
 const adminPanel=document.getElementById("adminPanel");
 const pendingList=document.getElementById("pendingList");
 
-// REGISTER
-document.getElementById("registerBtn").onclick=async()=>{
-    const cred = await createUserWithEmailAndPassword(auth,email.value,password.value);
-    await setDoc(doc(db,"users",cred.user.uid),{email:email.value,role:"pending"});
-    alert("Registriert – Admin muss freischalten");
-    signOut(auth);
+// REGISTER - jetzt automatisch Users Collection erstellen
+document.getElementById("registerBtn").onclick = async () => {
+    try {
+        const cred = await createUserWithEmailAndPassword(auth,email.value,password.value);
+        // automatisch Firestore-Dokument anlegen
+        await setDoc(doc(db,"users",cred.user.uid), {
+            email: email.value,
+            role: "pending"
+        });
+        alert("Registriert – Admin muss freischalten");
+        signOut(auth);
+    } catch(e){
+        alert("Fehler: " + e.message);
+    }
 };
 
 // LOGIN / LOGOUT
@@ -229,7 +237,7 @@ async function loadPending(){
     });
 }
 window.approveUser=async(uid)=>{ await updateDoc(doc(db,"users",uid),{role:"user"}); loadPending(); }
+
 </script>
 </body>
 </html>
-

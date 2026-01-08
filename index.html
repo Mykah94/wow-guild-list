@@ -127,7 +127,7 @@ document.getElementById("loginBtn").onclick=()=>signInWithEmailAndPassword(auth,
 document.getElementById("logoutBtn").onclick=()=>signOut(auth);
 
 /* EINMALIG KLASSEN INIT & AUTH STATE */
-async function ensureClasses(){
+async function ensureClasses() {
     const colSnap = await getDocs(collection(db,"classes"));
     if(colSnap.empty){
         for(const [name,data] of Object.entries(initialClassData)){
@@ -137,7 +137,7 @@ async function ensureClasses(){
     }
 }
 
-onAuthStateChanged(auth,async user=>{
+onAuthStateChanged(auth, async user=>{
     if(!user){ loginPanel.style.display="block"; mainContent.style.display="none"; return; }
     const snap = await getDoc(doc(db,"users",user.uid));
     if(!snap.exists() || snap.data().role==="pending"){ alert("Account noch nicht freigeschaltet"); signOut(auth); return; }
@@ -145,8 +145,7 @@ onAuthStateChanged(auth,async user=>{
     loginPanel.style.display="none";
     mainContent.style.display="block";
 
-    // Admin einmalig Klassen erstellen
-    if(snap.data().role==="admin"){
+    if(snap.data().role==="admin") {
         adminPanel.style.display="block";
         await ensureClasses();
         loadPending();
@@ -157,16 +156,13 @@ onAuthStateChanged(auth,async user=>{
 
 /* ADD ENTRY */
 document.getElementById("addBtn").onclick=async()=>{
-    try{
+    try {
         const snap = await getDoc(doc(db,"users",auth.currentUser.uid));
         const role = snap.data().role;
         if(role !== "user" && role !== "admin"){ alert("Du bist noch nicht freigeschaltet!"); return; }
 
         const selectedClass = wowClass.value;
-        if(!nameInput.value || !race.value || !selectedClass){
-            alert("Name, Rasse und Klasse sind Pflicht"); return;
-        }
-
+        if(!nameInput.value || !race.value || !selectedClass){ alert("Name, Rasse und Klasse sind Pflicht"); return; }
         const classInfo = initialClassData[selectedClass];
         if(!classInfo){ alert("Ungültige Klasse"); return; }
 
@@ -180,14 +176,10 @@ document.getElementById("addBtn").onclick=async()=>{
             createdAt: serverTimestamp()
         });
 
-        // Formular zurücksetzen
+        // Reset Formular
         nameInput.value=""; guild.value=""; level.value=""; race.value=""; wowClass.value="";
-
         alert("Eintrag erfolgreich hinzugefügt!");
-
-    } catch(e){
-        alert("Fehler beim Speichern: " + e.message);
-    }
+    } catch(e){ alert("Fehler beim Speichern: "+e.message); }
 };
 
 /* LOAD ENTRIES */
@@ -196,11 +188,11 @@ function loadEntries(){
     onSnapshot(q,snap=>{
         list.innerHTML="";
         snap.forEach(doc=>{
-            const e=doc.data();
-            const div=document.createElement("div");
-            div.className="entry";
-            div.style.borderLeftColor=initialClassData[e.class].color;
-            div.innerHTML=`
+            const e = doc.data();
+            const div = document.createElement("div");
+            div.className = "entry";
+            div.style.borderLeftColor = initialClassData[e.class].color;
+            div.innerHTML = `
             <div class="icon" style="background-image:url(${raceIcons[e.race]})"></div>
             <div class="icon" style="background-image:url(${initialClassData[e.class].icon})"></div>
             <div><strong>${e.name}</strong><br><small>${e.guild||""}</small></div>
@@ -214,16 +206,16 @@ function loadEntries(){
 }
 
 /* DELETE ENTRY */
-window.deleteEntry=async(id)=>{if(confirm("Eintrag löschen?")) await deleteDoc(doc(db,"entries",id));};
+window.deleteEntry = async(id) => { if(confirm("Eintrag löschen?")) await deleteDoc(doc(db,"entries",id)); };
 
 /* ADMIN PANEL */
 async function loadPending(){
     pendingList.innerHTML="";
-    const q=await getDocs(collection(db,"users"));
+    const q = await getDocs(collection(db,"users"));
     q.forEach(docu=>{
-        const u=docu.data();
+        const u = docu.data();
         if(u.role==="pending"){
-            const div=document.createElement("div");
+            const div = document.createElement("div");
             div.className="adminUser";
             div.innerHTML=`${u.email} <button onclick="approveUser('${docu.id}')">Freischalten</button>`;
             pendingList.appendChild(div);
@@ -231,7 +223,8 @@ async function loadPending(){
     });
 }
 
-window.approveUser=async(uid)=>{await updateDoc(doc(db,"users",uid),{role:"user"}); loadPending();}
+window.approveUser = async(uid) => { await updateDoc(doc(db,"users",uid),{role:"user"}); loadPending(); }
+
 </script>
 </body>
 </html>

@@ -142,7 +142,8 @@ onAuthStateChanged(auth,async user=>{
     const snap = await getDoc(doc(db,"users",user.uid));
     if(!snap.exists() || snap.data().role==="pending"){ alert("Account noch nicht freigeschaltet"); signOut(auth); return; }
 
-    loginPanel.style.display="none"; mainContent.style.display="block";
+    loginPanel.style.display="none";
+    mainContent.style.display="block";
 
     // Admin einmalig Klassen erstellen
     if(snap.data().role==="admin"){
@@ -156,24 +157,37 @@ onAuthStateChanged(auth,async user=>{
 
 /* ADD ENTRY */
 document.getElementById("addBtn").onclick=async()=>{
-    const snap = await getDoc(doc(db,"users",auth.currentUser.uid));
-    const role = snap.data().role;
-    if(role !== "user" && role !== "admin"){ alert("Du bist noch nicht freigeschaltet!"); return; }
+    try{
+        const snap = await getDoc(doc(db,"users",auth.currentUser.uid));
+        const role = snap.data().role;
+        if(role !== "user" && role !== "admin"){ alert("Du bist noch nicht freigeschaltet!"); return; }
 
-    if(!nameInput.value||!race.value||!wowClass.value){ alert("Name, Rasse und Klasse sind Pflicht"); return; }
+        const selectedClass = wowClass.value;
+        if(!nameInput.value || !race.value || !selectedClass){
+            alert("Name, Rasse und Klasse sind Pflicht"); return;
+        }
 
-    await addDoc(collection(db,"entries"),{
-        name: nameInput.value,
-        guild: guild.value||"",
-        level: level.value||"?",
-        race: race.value,
-        class: wowClass.value,
-        role: initialClassData[wowClass.value].role,
-        createdAt: serverTimestamp()
-    });
+        const classInfo = initialClassData[selectedClass];
+        if(!classInfo){ alert("Ungültige Klasse"); return; }
 
-    // Formular zurücksetzen
-    nameInput.value=""; guild.value=""; level.value=""; race.value=""; wowClass.value="";
+        await addDoc(collection(db,"entries"),{
+            name: nameInput.value,
+            guild: guild.value||"",
+            level: level.value||"?",
+            race: race.value,
+            class: selectedClass,
+            role: classInfo.role,
+            createdAt: serverTimestamp()
+        });
+
+        // Formular zurücksetzen
+        nameInput.value=""; guild.value=""; level.value=""; race.value=""; wowClass.value="";
+
+        alert("Eintrag erfolgreich hinzugefügt!");
+
+    } catch(e){
+        alert("Fehler beim Speichern: " + e.message);
+    }
 };
 
 /* LOAD ENTRIES */

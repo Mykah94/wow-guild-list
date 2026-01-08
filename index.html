@@ -73,7 +73,7 @@ button { cursor:pointer; background:linear-gradient(to bottom,#e0b75a,#8a6b2f); 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, updateDoc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, updateDoc, deleteDoc, getDoc, getDocs, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 /* CONFIG */
 const firebaseConfig = {
@@ -121,14 +121,15 @@ const crimeInput=document.getElementById("crime");
 const adminPanel=document.getElementById("adminPanel");
 const pendingList=document.getElementById("pendingList");
 
-// REGISTER / LOGIN
+// REGISTER
 document.getElementById("registerBtn").onclick=async()=>{
     const cred = await createUserWithEmailAndPassword(auth,email.value,password.value);
-    await doc(db,"users",cred.user.uid).set({email:email.value, role:"pending"});
+    await setDoc(doc(db,"users",cred.user.uid),{email:email.value,role:"pending"});
     alert("Registriert – Admin muss freischalten");
     signOut(auth);
 };
 
+// LOGIN / LOGOUT
 document.getElementById("loginBtn").onclick=()=>signInWithEmailAndPassword(auth,email.value,password.value).catch(e=>alert(e.message));
 document.getElementById("logoutBtn").onclick=()=>signOut(auth);
 
@@ -136,13 +137,12 @@ document.getElementById("logoutBtn").onclick=()=>signOut(auth);
 onAuthStateChanged(auth, async user=>{
     if(!user){ loginPanel.style.display="block"; mainContent.style.display="none"; return; }
 
-    const snap = await doc(db,"users",user.uid).get();
-    if(!snap.exists || snap.data().role==="pending"){ alert("Noch nicht freigeschaltet"); signOut(auth); return; }
+    const snap = await getDoc(doc(db,"users",user.uid));
+    if(!snap.exists() || snap.data().role==="pending"){ alert("Noch nicht freigeschaltet"); signOut(auth); return; }
 
     loginPanel.style.display="none"; mainContent.style.display="block";
-
     const role = snap.data().role;
-    if(role==="admin") { adminPanel.style.display="block"; loadPending(); } else { adminPanel.style.display="none"; }
+    if(role==="admin"){ adminPanel.style.display="block"; loadPending(); } else { adminPanel.style.display="none"; }
 
     loadEntries();
 });
@@ -169,7 +169,7 @@ document.getElementById("addBtn").onclick=async()=>{
 // LOAD ENTRIES
 function loadEntries(){
     const q = query(collection(db,"entries"), orderBy("createdAt"));
-    onSnapshot(q, snap=>{
+    onSnapshot(q,snap=>{
         list.innerHTML="";
         snap.forEach(doc=>{
             const e = doc.data();
@@ -181,9 +181,9 @@ function loadEntries(){
             <div class="icon" style="background-image:url(${raceIcons[e.race]})"></div>
             <div class="icon" style="background-image:url(${initialClassData[e.class].icon})"></div>
             <div>
-              <strong>${e.name}</strong><br>
-              <small>${e.race} / ${e.class}</small><br>
-              <small>Schandtat: ${e.crime}</small>
+                <strong>${e.name}</strong><br>
+                <small>${e.race} / ${e.class}</small><br>
+                <small>Schandtat: ${e.crime}</small>
             </div>
             <button onclick="editEntry('${doc.id}','${e.name}','${e.race}','${e.class}','${e.crime}')">✏️</button>
             <button onclick="deleteEntry('${doc.id}')">🗑</button>

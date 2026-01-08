@@ -115,12 +115,14 @@ const level=document.getElementById("level");
 const race=document.getElementById("race");
 const wowClass=document.getElementById("wowClass");
 
-// ------------------ ADD-BUTTON HANDLER (direkt nach DOM) ------------------
+let currentUserRole = null; // ← Rolle des eingeloggten Users speichern
+
+// ------------------ ADD-BUTTON HANDLER ------------------
 document.getElementById("addBtn").onclick=async()=>{
     try {
         const snap = await getDoc(doc(db,"users",auth.currentUser.uid));
-        const role = snap.data().role;
-        if(role !== "user" && role !== "admin"){ alert("Du bist noch nicht freigeschaltet!"); return; }
+        currentUserRole = snap.data().role;
+        if(currentUserRole !== "user" && currentUserRole !== "admin"){ alert("Du bist noch nicht freigeschaltet!"); return; }
 
         const selectedClass = wowClass.value;
         if(!nameInput.value || !race.value || !selectedClass){ alert("Name, Rasse und Klasse sind Pflicht"); return; }
@@ -137,7 +139,6 @@ document.getElementById("addBtn").onclick=async()=>{
             createdAt: serverTimestamp()
         });
 
-        // Reset Formular
         nameInput.value=""; guild.value=""; level.value=""; race.value=""; wowClass.value="";
         alert("Eintrag erfolgreich hinzugefügt!");
     } catch(e){ alert("Fehler beim Speichern: "+e.message); }
@@ -159,10 +160,12 @@ onAuthStateChanged(auth, async user=>{
     const snap = await getDoc(doc(db,"users",user.uid));
     if(!snap.exists() || snap.data().role==="pending"){ alert("Account noch nicht freigeschaltet"); signOut(auth); return; }
 
+    currentUserRole = snap.data().role;
+
     loginPanel.style.display="none";
     mainContent.style.display="block";
 
-    if(snap.data().role==="admin") {
+    if(currentUserRole==="admin") {
         adminPanel.style.display="block";
         await ensureClasses();
         loadPending();
@@ -171,9 +174,9 @@ onAuthStateChanged(auth, async user=>{
     loadEntries();
 });
 
-/* LOAD ENTRIES */
+// ------------------ LOAD ENTRIES ------------------
 function loadEntries(){
-    const q=query(collection(db,"entries"),orderBy("createdAt"));
+    const q = query(collection(db,"entries"), orderBy("createdAt"));
     onSnapshot(q,snap=>{
         list.innerHTML="";
         snap.forEach(doc=>{
@@ -188,16 +191,16 @@ function loadEntries(){
             <div>${e.race}</div>
             <div>Lvl ${e.level}</div>
             <div class="class-name" style="color:${initialClassData[e.class].color}">${e.class}<br><small>${initialClassData[e.class].role}</small></div>
-            ${snap.data?.role==="admin"?`<button onclick="deleteEntry('${doc.id}')">🗑</button>`:""}`;
+            ${currentUserRole==="admin"?`<button onclick="deleteEntry('${doc.id}')">🗑</button>`:""}`;
             list.appendChild(div);
         });
     });
 }
 
-/* DELETE ENTRY */
-window.deleteEntry = async(id) => { if(confirm("Eintrag löschen?")) await deleteDoc(doc(db,"entries",id)); };
+// ------------------ DELETE ENTRY ------------------
+window.deleteEntry = async(id) => { if(confirm("Eintrag löschen?")) await deleteDoc(doc(db,"entries",id)); }
 
-/* ADMIN PANEL */
+// ------------------ ADMIN PANEL ------------------
 async function loadPending(){
     pendingList.innerHTML="";
     const q = await getDocs(collection(db,"users"));
@@ -213,6 +216,7 @@ async function loadPending(){
 }
 
 window.approveUser = async(uid) => { await updateDoc(doc(db,"users",uid),{role:"user"}); loadPending(); }
+
 </script>
 </body>
 </html>

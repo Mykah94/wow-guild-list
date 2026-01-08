@@ -11,9 +11,9 @@ h1 { text-align:center; color:#ffd36a; margin-bottom:20px; }
 input, select, button { padding:10px; background:#120c05; border:2px solid #9c7c3f; color:#f5e6c8; border-radius:6px; font-family:inherit; }
 button { cursor:pointer; background:linear-gradient(to bottom,#e0b75a,#8a6b2f); color:#1b1206; font-weight:bold; }
 #loginPanel { max-width:400px; margin:20px auto; padding:20px; background:#1a1208; border-radius:12px; }
-.form { display:grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-bottom:20px; }
+.form { display:flex; flex-wrap:wrap; gap:12px; margin-bottom:12px; }
 .list { margin-top:30px; }
-.entry { display:grid; grid-template-columns:44px 44px 2fr 1fr 1fr 50px; gap:12px; align-items:center; padding:12px; background:linear-gradient(180deg,#1a1208,#0d0904); border:2px solid #8c6a32; border-left:8px solid; border-radius:8px; }
+.entry { display:grid; grid-template-columns:44px 44px 2fr 50px 50px; gap:12px; align-items:flex-start; padding:12px; background:linear-gradient(180deg,#1a1208,#0d0904); border:2px solid #8c6a32; border-left:8px solid; border-radius:8px; }
 .icon { width:40px; height:40px; background-size:cover; background-position:center; border:2px solid #c9a44c; border-radius:4px; }
 .class-name { font-weight:bold; text-shadow:0 0 6px #000; }
 </style>
@@ -32,24 +32,28 @@ button { cursor:pointer; background:linear-gradient(to bottom,#e0b75a,#8a6b2f); 
 
 <!-- MAIN CONTENT -->
 <div id="mainContent" style="display:none;">
-<div class="form">
-    <input id="name" placeholder="Name">
-    <select id="race">
-        <option value="">Rasse</option>
-        <option>Mensch</option><option>Zwerg</option><option>Nachtelf</option>
-        <option>Ork</option><option>Untoter</option><option>Tauren</option>
-    </select>
-    <select id="wowClass">
-        <option value="">Klasse</option>
-        <option>Krieger</option><option>Magier</option><option>Priester</option>
-        <option>Schurke</option><option>Jäger</option><option>Hexenmeister</option><option>Druide</option>
-    </select>
-    <input id="crime" placeholder="Schandtat">
-    <button id="addBtn">Hinzufügen</button>
-    <button id="logoutBtn">Logout</button>
-</div>
+    <div class="form">
+        <input id="name" placeholder="Name">
+        <select id="race">
+            <option value="">Rasse</option>
+            <option>Mensch</option><option>Zwerg</option><option>Nachtelf</option>
+            <option>Ork</option><option>Untoter</option><option>Tauren</option>
+        </select>
+        <select id="wowClass">
+            <option value="">Klasse</option>
+            <option>Krieger</option><option>Magier</option><option>Priester</option>
+            <option>Schurke</option><option>Jäger</option><option>Hexenmeister</option><option>Druide</option>
+        </select>
+    </div>
+    <div class="form">
+        <input id="crime" placeholder="Schandtat">
+    </div>
+    <div class="form">
+        <button id="addBtn">Hinzufügen</button>
+        <button id="logoutBtn">Logout</button>
+    </div>
 
-<div id="list" class="list"></div>
+    <div id="list" class="list"></div>
 </div>
 
 <script type="module">
@@ -153,7 +157,11 @@ function loadEntries(){
             div.innerHTML=`
             <div class="icon" style="background-image:url(${raceIcons[e.race]})"></div>
             <div class="icon" style="background-image:url(${initialClassData[e.class].icon})"></div>
-            <div><strong>${e.name}</strong><br><small>${e.race} / ${e.class} / ${e.crime}</small></div>
+            <div>
+                <strong>${e.name}</strong><br>
+                <small>${e.race} / ${e.class}</small><br>
+                <small>Schandtat: ${e.crime}</small>
+            </div>
             <button onclick="editEntry('${doc.id}','${e.name}','${e.race}','${e.class}','${e.crime}')">✏️</button>
             <button onclick="deleteEntry('${doc.id}')">🗑</button>
             `;

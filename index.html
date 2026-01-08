@@ -13,7 +13,7 @@ button { cursor:pointer; background:linear-gradient(to bottom,#e0b75a,#8a6b2f); 
 #loginPanel { max-width:400px; margin:20px auto; padding:20px; background:#1a1208; border-radius:12px; }
 .form { display:grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-bottom:20px; }
 .list { margin-top:30px; }
-.entry { display:grid; grid-template-columns:44px 44px 2fr 1fr 80px 1.2fr; gap:12px; align-items:center; padding:12px; background:linear-gradient(180deg,#1a1208,#0d0904); border:2px solid #8c6a32; border-left:8px solid; border-radius:8px; }
+.entry { display:grid; grid-template-columns:44px 44px 2fr 1fr 1fr 50px; gap:12px; align-items:center; padding:12px; background:linear-gradient(180deg,#1a1208,#0d0904); border:2px solid #8c6a32; border-left:8px solid; border-radius:8px; }
 .icon { width:40px; height:40px; background-size:cover; background-position:center; border:2px solid #c9a44c; border-radius:4px; }
 .class-name { font-weight:bold; text-shadow:0 0 6px #000; }
 </style>
@@ -34,8 +34,6 @@ button { cursor:pointer; background:linear-gradient(to bottom,#e0b75a,#8a6b2f); 
 <div id="mainContent" style="display:none;">
 <div class="form">
     <input id="name" placeholder="Name">
-    <input id="guild" placeholder="Gilde">
-    <input id="level" type="number" placeholder="Level">
     <select id="race">
         <option value="">Rasse</option>
         <option>Mensch</option><option>Zwerg</option><option>Nachtelf</option>
@@ -46,6 +44,7 @@ button { cursor:pointer; background:linear-gradient(to bottom,#e0b75a,#8a6b2f); 
         <option>Krieger</option><option>Magier</option><option>Priester</option>
         <option>Schurke</option><option>Jäger</option><option>Hexenmeister</option><option>Druide</option>
     </select>
+    <input id="crime" placeholder="Schandtat">
     <button id="addBtn">Hinzufügen</button>
     <button id="logoutBtn">Logout</button>
 </div>
@@ -56,7 +55,7 @@ button { cursor:pointer; background:linear-gradient(to bottom,#e0b75a,#8a6b2f); 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 /* CONFIG */
 const firebaseConfig = {
@@ -98,73 +97,92 @@ const loginPanel=document.getElementById("loginPanel");
 const mainContent=document.getElementById("mainContent");
 const list=document.getElementById("list");
 const nameInput=document.getElementById("name");
-const guild=document.getElementById("guild");
-const level=document.getElementById("level");
 const race=document.getElementById("race");
 const wowClass=document.getElementById("wowClass");
+const crimeInput=document.getElementById("crime");
 
-// ------------------ REGISTER ------------------
+// REGISTER / LOGIN
 document.getElementById("registerBtn").onclick=async()=>{
     const cred = await createUserWithEmailAndPassword(auth,email.value,password.value);
     alert("Registriert – Login möglich");
 };
-
-// ------------------ LOGIN ------------------
 document.getElementById("loginBtn").onclick=()=>signInWithEmailAndPassword(auth,email.value,password.value).catch(e=>alert(e.message));
 document.getElementById("logoutBtn").onclick=()=>signOut(auth);
 
-// ------------------ AUTH STATE ------------------
-onAuthStateChanged(auth, async user=>{
+// AUTH STATE
+onAuthStateChanged(auth, user=>{
     if(!user){ loginPanel.style.display="block"; mainContent.style.display="none"; return; }
-    loginPanel.style.display="none";
-    mainContent.style.display="block";
+    loginPanel.style.display="none"; mainContent.style.display="block";
     loadEntries();
 });
 
-// ------------------ ADD ENTRY ------------------
+// ADD ENTRY
 document.getElementById("addBtn").onclick=async()=>{
     try{
+        const user = auth.currentUser;
+        if(!user){ alert("Nicht eingeloggt"); return; }
+
         const selectedClass = wowClass.value;
-        if(!nameInput.value || !race.value || !selectedClass){ alert("Name, Rasse und Klasse Pflicht"); return; }
-        const classInfo = initialClassData[selectedClass];
+        if(!nameInput.value || !race.value || !selectedClass || !crimeInput.value){ alert("Alle Felder ausfüllen!"); return; }
 
         await addDoc(collection(db,"entries"),{
+            uid: user.uid,
             name: nameInput.value,
-            guild: guild.value||"",
-            level: level.value||"?",
             race: race.value,
             class: selectedClass,
-            role: classInfo.role,
+            crime: crimeInput.value,
+            role: initialClassData[selectedClass].role,
             createdAt: serverTimestamp()
         });
 
-        nameInput.value=""; guild.value=""; level.value=""; race.value=""; wowClass.value="";
-        alert("Eintrag erfolgreich hinzugefügt!");
-    } catch(e){ alert("Fehler: "+e.message); }
+        nameInput.value=""; race.value=""; wowClass.value=""; crimeInput.value="";
+    }catch(e){ alert("Fehler: "+e.message); }
 };
 
-// ------------------ LOAD ENTRIES ------------------
+// LOAD ENTRIES
 function loadEntries(){
     const q = query(collection(db,"entries"), orderBy("createdAt"));
-    onSnapshot(q,snap=>{
+    onSnapshot(q, snap=>{
         list.innerHTML="";
         snap.forEach(doc=>{
-            const e=doc.data();
-            const div=document.createElement("div");
+            const e = doc.data();
+            const div = document.createElement("div");
             div.className="entry";
             div.style.borderLeftColor = initialClassData[e.class].color;
+            const user = auth.currentUser;
+
             div.innerHTML=`
             <div class="icon" style="background-image:url(${raceIcons[e.race]})"></div>
             <div class="icon" style="background-image:url(${initialClassData[e.class].icon})"></div>
-            <div><strong>${e.name}</strong><br><small>${e.guild||""}</small></div>
-            <div>${e.race}</div>
-            <div>Lvl ${e.level}</div>
-            <div class="class-name" style="color:${initialClassData[e.class].color}">${e.class}<br><small>${initialClassData[e.class].role}</small></div>
-            `;
+            <div><strong>${e.name}</strong><br><small>${e.race} / ${e.class} / ${e.crime}</small></div>
+            ${user && user.uid===e.uid ? `<button onclick="editEntry('${doc.id}','${e.name}','${e.race}','${e.class}','${e.crime}')">✏️</button>
+            <button onclick="deleteEntry('${doc.id}')">🗑</button>` : ''}`;
             list.appendChild(div);
         });
     });
 }
+
+// EDIT ENTRY
+window.editEntry=async(id,name,raceVal,classVal,crime)=>{
+    const newName = prompt("Neuer Name:",name);
+    const newRace = prompt("Neue Rasse:",raceVal);
+    const newClass = prompt("Neue Klasse:",classVal);
+    const newCrime = prompt("Neue Schandtat:",crime);
+
+    if(newName && newRace && newClass && newCrime){
+        await updateDoc(doc(db,"entries",id),{
+            name:newName,
+            race:newRace,
+            class:newClass,
+            crime:newCrime,
+            role: initialClassData[newClass].role
+        });
+    }
+};
+
+// DELETE ENTRY
+window.deleteEntry=async(id)=>{ if(confirm("Eintrag löschen?")) await deleteDoc(doc(db,"entries",id)); }
+
 </script>
 </body>
 </html>

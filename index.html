@@ -12,15 +12,21 @@ input, select, button { padding:10px; background:#120c05; border:2px solid #9c7c
 button { cursor:pointer; background:linear-gradient(to bottom,#e0b75a,#8a6b2f); color:#1b1206; font-weight:bold; }
 #loginPanel { max-width:400px; margin:20px auto; padding:20px; background:#1a1208; border-radius:12px; }
 .form { display:flex; flex-wrap:wrap; gap:12px; margin-bottom:12px; }
+.form-full { display:flex; width:100%; }
+#crime { flex:1; min-width:100%; }
+.form-buttons { display:flex; justify-content:center; gap:12px; margin-top:10px; }
 .list { margin-top:30px; }
 .entry { display:grid; grid-template-columns:44px 44px 2fr 50px 50px; gap:12px; align-items:flex-start; padding:12px; background:linear-gradient(180deg,#1a1208,#0d0904); border:2px solid #8c6a32; border-left:8px solid; border-radius:8px; }
 .icon { width:40px; height:40px; background-size:cover; background-position:center; border:2px solid #c9a44c; border-radius:4px; }
 .class-name { font-weight:bold; text-shadow:0 0 6px #000; }
+#adminPanel { margin-top:20px; background:#1a1208; padding:10px; border-radius:8px; border:2px solid #8c6a32; display:none; }
+.adminUser { display:flex; justify-content:space-between; margin-bottom:6px; }
+.adminUser button { padding:2px 6px; font-size:0.8em; }
 </style>
 </head>
 <body>
 <div class="container">
-<h1>WoW Classic – HURENSOHN-Liste</h1>
+<h1>WoW Classic – Gildenliste</h1>
 
 <!-- LOGIN -->
 <div id="loginPanel">
@@ -32,6 +38,7 @@ button { cursor:pointer; background:linear-gradient(to bottom,#e0b75a,#8a6b2f); 
 
 <!-- MAIN CONTENT -->
 <div id="mainContent" style="display:none;">
+    <!-- Formular -->
     <div class="form">
         <input id="name" placeholder="Name">
         <select id="race">
@@ -45,21 +52,28 @@ button { cursor:pointer; background:linear-gradient(to bottom,#e0b75a,#8a6b2f); 
             <option>Schurke</option><option>Jäger</option><option>Hexenmeister</option><option>Druide</option>
         </select>
     </div>
-    <div class="form">
+    <div class="form-full">
         <input id="crime" placeholder="Schandtat">
     </div>
-    <div class="form">
+    <div class="form-buttons">
         <button id="addBtn">Hinzufügen</button>
         <button id="logoutBtn">Logout</button>
     </div>
 
+    <!-- Einträge -->
     <div id="list" class="list"></div>
+
+    <!-- ADMIN PANEL -->
+    <div id="adminPanel">
+        <h3>Pending-User Freischalten</h3>
+        <div id="pendingList"></div>
+    </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, updateDoc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 /* CONFIG */
 const firebaseConfig = {
@@ -104,43 +118,52 @@ const nameInput=document.getElementById("name");
 const race=document.getElementById("race");
 const wowClass=document.getElementById("wowClass");
 const crimeInput=document.getElementById("crime");
+const adminPanel=document.getElementById("adminPanel");
+const pendingList=document.getElementById("pendingList");
 
 // REGISTER / LOGIN
 document.getElementById("registerBtn").onclick=async()=>{
     const cred = await createUserWithEmailAndPassword(auth,email.value,password.value);
-    alert("Registriert – Login möglich");
+    await doc(db,"users",cred.user.uid).set({email:email.value, role:"pending"});
+    alert("Registriert – Admin muss freischalten");
+    signOut(auth);
 };
+
 document.getElementById("loginBtn").onclick=()=>signInWithEmailAndPassword(auth,email.value,password.value).catch(e=>alert(e.message));
 document.getElementById("logoutBtn").onclick=()=>signOut(auth);
 
 // AUTH STATE
-onAuthStateChanged(auth, user=>{
+onAuthStateChanged(auth, async user=>{
     if(!user){ loginPanel.style.display="block"; mainContent.style.display="none"; return; }
+
+    const snap = await doc(db,"users",user.uid).get();
+    if(!snap.exists || snap.data().role==="pending"){ alert("Noch nicht freigeschaltet"); signOut(auth); return; }
+
     loginPanel.style.display="none"; mainContent.style.display="block";
+
+    const role = snap.data().role;
+    if(role==="admin") { adminPanel.style.display="block"; loadPending(); } else { adminPanel.style.display="none"; }
+
     loadEntries();
 });
 
 // ADD ENTRY
 document.getElementById("addBtn").onclick=async()=>{
-    try{
-        const user = auth.currentUser;
-        if(!user){ alert("Nicht eingeloggt"); return; }
+    const user = auth.currentUser;
+    if(!user){ alert("Nicht eingeloggt"); return; }
+    if(!nameInput.value || !race.value || !wowClass.value || !crimeInput.value){ alert("Alle Felder ausfüllen"); return; }
 
-        const selectedClass = wowClass.value;
-        if(!nameInput.value || !race.value || !selectedClass || !crimeInput.value){ alert("Alle Felder ausfüllen!"); return; }
+    await addDoc(collection(db,"entries"),{
+        uid:user.uid,
+        name:nameInput.value,
+        race:race.value,
+        class:wowClass.value,
+        crime:crimeInput.value,
+        role:initialClassData[wowClass.value].role,
+        createdAt:serverTimestamp()
+    });
 
-        await addDoc(collection(db,"entries"),{
-            uid: user.uid,
-            name: nameInput.value,
-            race: race.value,
-            class: selectedClass,
-            crime: crimeInput.value,
-            role: initialClassData[selectedClass].role,
-            createdAt: serverTimestamp()
-        });
-
-        nameInput.value=""; race.value=""; wowClass.value=""; crimeInput.value="";
-    }catch(e){ alert("Fehler: "+e.message); }
+    nameInput.value=""; race.value=""; wowClass.value=""; crimeInput.value="";
 };
 
 // LOAD ENTRIES
@@ -158,9 +181,9 @@ function loadEntries(){
             <div class="icon" style="background-image:url(${raceIcons[e.race]})"></div>
             <div class="icon" style="background-image:url(${initialClassData[e.class].icon})"></div>
             <div>
-                <strong>${e.name}</strong><br>
-                <small>${e.race} / ${e.class}</small><br>
-                <small>Schandtat: ${e.crime}</small>
+              <strong>${e.name}</strong><br>
+              <small>${e.race} / ${e.class}</small><br>
+              <small>Schandtat: ${e.crime}</small>
             </div>
             <button onclick="editEntry('${doc.id}','${e.name}','${e.race}','${e.class}','${e.crime}')">✏️</button>
             <button onclick="deleteEntry('${doc.id}')">🗑</button>
@@ -191,7 +214,21 @@ window.editEntry=async(id,name,raceVal,classVal,crime)=>{
 // DELETE ENTRY
 window.deleteEntry=async(id)=>{ if(confirm("Eintrag löschen?")) await deleteDoc(doc(db,"entries",id)); }
 
+// ADMIN PANEL
+async function loadPending(){
+    pendingList.innerHTML="";
+    const q = await getDocs(collection(db,"users"));
+    q.forEach(docu=>{
+        const u = docu.data();
+        if(u.role==="pending"){
+            const div=document.createElement("div");
+            div.className="adminUser";
+            div.innerHTML=`${u.email} <button onclick="approveUser('${docu.id}')">Freischalten</button>`;
+            pendingList.appendChild(div);
+        }
+    });
+}
+window.approveUser=async(uid)=>{ await updateDoc(doc(db,"users",uid),{role:"user"}); loadPending(); }
 </script>
 </body>
 </html>
-

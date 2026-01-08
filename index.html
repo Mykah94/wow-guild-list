@@ -19,13 +19,11 @@ body {
     padding: 30px;
     background: linear-gradient(180deg, rgba(20,14,7,.95), rgba(10,7,3,.98));
     border: 6px solid #c9a44c;
-    box-shadow: inset 0 0 30px #000, 0 0 40px #000;
     border-radius: 14px;
 }
 h1 {
     text-align: center;
     color: #ffd36a;
-    text-shadow: 0 0 10px #000;
 }
 input, select, button {
     padding: 10px;
@@ -52,24 +50,19 @@ button {
     align-items: center;
     padding: 12px;
     margin-bottom: 10px;
-    background: linear-gradient(180deg, #1a1208, #0d0904);
-    border: 2px solid #8c6a32;
+    background: #1a1208;
     border-left: 8px solid;
-    border-radius: 8px;
 }
 .icon {
     width: 40px;
     height: 40px;
     background-size: cover;
-    background-position: center;
-    border: 2px solid #c9a44c;
 }
 #loginPanel {
     max-width: 400px;
     margin: 20px auto;
     padding: 20px;
-    background: linear-gradient(180deg, #1a1208, #0d0904);
-    border: 2px solid #8c6a32;
+    background: #1a1208;
     border-radius: 12px;
 }
 </style>
@@ -121,14 +114,26 @@ button {
 </div>
 </div>
 
-<!-- 🔥 Firebase v9 -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } 
-from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } 
-from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  query,
+  orderBy,
+  onSnapshot,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
+/* Firebase Config */
 const firebaseConfig = {
   apiKey: "AIzaSyBOko8Wg-jCvz7aRPleNcbJCm8u2CYtjps",
   authDomain: "wow-hs-liste.firebaseapp.com",
@@ -138,69 +143,70 @@ const firebaseConfig = {
   appId: "1:180764359810:web:03cef19546dcc32081889b"
 };
 
+/* Init */
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const classData = {
-    Krieger:{ color:"#C79C6E", role:"Tank", icon:"https://wow.zamimg.com/images/wow/icons/large/class_warrior.jpg" },
-    Magier:{ color:"#69CCF0", role:"DPS", icon:"https://wow.zamimg.com/images/wow/icons/large/class_mage.jpg" },
-    Priester:{ color:"#FFFFFF", role:"Heal", icon:"https://wow.zamimg.com/images/wow/icons/large/class_priest.jpg" },
-    Schurke:{ color:"#FFF569", role:"DPS", icon:"https://wow.zamimg.com/images/wow/icons/large/class_rogue.jpg" },
-    Jäger:{ color:"#ABD473", role:"DPS", icon:"https://wow.zamimg.com/images/wow/icons/large/class_hunter.jpg" },
-    Hexenmeister:{ color:"#9482C9", role:"DPS", icon:"https://wow.zamimg.com/images/wow/icons/large/class_warlock.jpg" },
-    Druide:{ color:"#FF7D0A", role:"Heal", icon:"https://wow.zamimg.com/images/wow/icons/large/class_druid.jpg" }
-};
+/* DOM */
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
 
-const raceIcons = {
-    Mensch:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_human_male.jpg",
-    Zwerg:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_dwarf_male.jpg",
-    Nachtelf:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_nightelf_male.jpg",
-    Ork:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_orc_male.jpg",
-    Untoter:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_undead_male.jpg",
-    Tauren:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_tauren_male.jpg"
-};
+/* Auth Buttons */
+document.getElementById("registerBtn").addEventListener("click", () => {
+    createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
+        .then(() => alert("Registrierung erfolgreich"))
+        .catch(e => alert(e.message));
+});
 
+document.getElementById("loginBtn").addEventListener("click", () => {
+    signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
+        .catch(e => alert(e.message));
+});
+
+document.getElementById("logoutBtn").addEventListener("click", () => {
+    signOut(auth);
+});
+
+/* Auth State */
 onAuthStateChanged(auth, user => {
     document.getElementById("loginPanel").style.display = user ? "none" : "block";
     document.getElementById("mainContent").style.display = user ? "block" : "none";
-    if(user) loadEntries();
+    if (user) loadEntries();
 });
 
-document.getElementById("registerBtn").onclick = () =>
-    createUserWithEmailAndPassword(auth, email.value, password.value).catch(e=>alert(e.message));
+/* Add Entry */
+document.getElementById("addBtn").addEventListener("click", async () => {
+    const wowClass = document.getElementById("wowClass").value;
+    const race = document.getElementById("race").value;
+    const name = document.getElementById("name").value;
 
-document.getElementById("loginBtn").onclick = () =>
-    signInWithEmailAndPassword(auth, email.value, password.value).catch(e=>alert(e.message));
+    if (!name || !race || !wowClass) {
+        alert("Name, Rasse und Klasse sind Pflicht");
+        return;
+    }
 
-document.getElementById("logoutBtn").onclick = () => signOut(auth);
-
-document.getElementById("addBtn").onclick = async () => {
-    await addDoc(collection(db,"entries"), {
-        name:name.value, guild:guild.value, level:level.value || "?",
-        race:race.value, class:wowClass.value,
-        role:classData[wowClass.value].role,
+    await addDoc(collection(db, "entries"), {
+        name,
+        guild: document.getElementById("guild").value,
+        level: document.getElementById("level").value || "?",
+        race,
+        class: wowClass,
         createdAt: serverTimestamp()
     });
-};
+});
 
-function loadEntries(){
-    const q = query(collection(db,"entries"), orderBy("createdAt"));
-    onSnapshot(q, snap=>{
-        list.innerHTML="";
-        snap.forEach(d=>{
-            const e=d.data();
-            const div=document.createElement("div");
-            div.className="entry";
-            div.style.borderLeftColor=classData[e.class].color;
-            div.innerHTML=`
-            <div class="icon" style="background-image:url(${raceIcons[e.race]})"></div>
-            <div class="icon" style="background-image:url(${classData[e.class].icon})"></div>
-            <div><b>${e.name}</b><br>${e.guild}</div>
-            <div>${e.race}</div>
-            <div>Lvl ${e.level}</div>
-            <div style="color:${classData[e.class].color}">${e.class}<br>${e.role}</div>`;
-            list.appendChild(div);
+/* Load Entries */
+function loadEntries() {
+    const q = query(collection(db, "entries"), orderBy("createdAt"));
+    onSnapshot(q, snap => {
+        document.getElementById("list").innerHTML = "";
+        snap.forEach(doc => {
+            const e = doc.data();
+            const div = document.createElement("div");
+            div.className = "entry";
+            div.innerHTML = `<strong>${e.name}</strong> – ${e.class}`;
+            document.getElementById("list").appendChild(div);
         });
     });
 }

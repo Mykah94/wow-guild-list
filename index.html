@@ -24,6 +24,7 @@ body {
 h1 {
     text-align: center;
     color: #ffd36a;
+    margin-bottom: 20px;
 }
 input, select, button {
     padding: 10px;
@@ -31,6 +32,7 @@ input, select, button {
     border: 2px solid #9c7c3f;
     color: #f5e6c8;
     border-radius: 6px;
+    font-family: inherit;
 }
 button {
     cursor: pointer;
@@ -43,6 +45,13 @@ button {
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 12px;
 }
+#loginPanel {
+    max-width: 400px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #1a1208;
+    border-radius: 12px;
+}
 .entry {
     display: grid;
     grid-template-columns: 44px 44px 1.5fr 1fr 80px 1fr;
@@ -50,20 +59,16 @@ button {
     align-items: center;
     padding: 12px;
     margin-bottom: 10px;
-    background: #1a1208;
+    background: linear-gradient(180deg, #1a1208, #0d0904);
     border-left: 8px solid;
+    border-radius: 8px;
 }
 .icon {
     width: 40px;
     height: 40px;
     background-size: cover;
-}
-#loginPanel {
-    max-width: 400px;
-    margin: 20px auto;
-    padding: 20px;
-    background: #1a1208;
-    border-radius: 12px;
+    background-position: center;
+    border: 2px solid #c9a44c;
 }
 </style>
 </head>
@@ -72,6 +77,7 @@ button {
 <div class="container">
 <h1>WoW Classic – Gildenliste</h1>
 
+<!-- LOGIN -->
 <div id="loginPanel">
     <input type="email" id="email" placeholder="Email">
     <input type="password" id="password" placeholder="Passwort">
@@ -79,6 +85,7 @@ button {
     <button id="loginBtn">Login</button>
 </div>
 
+<!-- MAIN -->
 <div id="mainContent" style="display:none;">
 <div class="form">
     <input id="name" placeholder="Name">
@@ -114,6 +121,7 @@ button {
 </div>
 </div>
 
+<!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import {
@@ -133,7 +141,7 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-/* Firebase Config */
+/* CONFIG */
 const firebaseConfig = {
   apiKey: "AIzaSyBOko8Wg-jCvz7aRPleNcbJCm8u2CYtjps",
   authDomain: "wow-hs-liste.firebaseapp.com",
@@ -143,70 +151,96 @@ const firebaseConfig = {
   appId: "1:180764359810:web:03cef19546dcc32081889b"
 };
 
-/* Init */
+/* INIT */
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+/* DATA */
+const classData = {
+    Krieger:{ color:"#C79C6E", role:"Tank", icon:"https://wow.zamimg.com/images/wow/icons/large/class_warrior.jpg" },
+    Magier:{ color:"#69CCF0", role:"DPS", icon:"https://wow.zamimg.com/images/wow/icons/large/class_mage.jpg" },
+    Priester:{ color:"#FFFFFF", role:"Heal", icon:"https://wow.zamimg.com/images/wow/icons/large/class_priest.jpg" },
+    Schurke:{ color:"#FFF569", role:"DPS", icon:"https://wow.zamimg.com/images/wow/icons/large/class_rogue.jpg" },
+    Jäger:{ color:"#ABD473", role:"DPS", icon:"https://wow.zamimg.com/images/wow/icons/large/class_hunter.jpg" },
+    Hexenmeister:{ color:"#9482C9", role:"DPS", icon:"https://wow.zamimg.com/images/wow/icons/large/class_warlock.jpg" },
+    Druide:{ color:"#FF7D0A", role:"Heal", icon:"https://wow.zamimg.com/images/wow/icons/large/class_druid.jpg" }
+};
+
+const raceIcons = {
+    Mensch:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_human_male.jpg",
+    Zwerg:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_dwarf_male.jpg",
+    Nachtelf:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_nightelf_male.jpg",
+    Ork:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_orc_male.jpg",
+    Untoter:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_undead_male.jpg",
+    Tauren:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_tauren_male.jpg"
+};
 
 /* DOM */
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 
-/* Auth Buttons */
-document.getElementById("registerBtn").addEventListener("click", () => {
+/* AUTH */
+document.getElementById("registerBtn").onclick = () =>
     createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
-        .then(() => alert("Registrierung erfolgreich"))
-        .catch(e => alert(e.message));
-});
+        .then(()=>alert("Registriert"))
+        .catch(e=>alert(e.message));
 
-document.getElementById("loginBtn").addEventListener("click", () => {
+document.getElementById("loginBtn").onclick = () =>
     signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
-        .catch(e => alert(e.message));
-});
+        .catch(e=>alert(e.message));
 
-document.getElementById("logoutBtn").addEventListener("click", () => {
-    signOut(auth);
-});
+document.getElementById("logoutBtn").onclick = () => signOut(auth);
 
-/* Auth State */
 onAuthStateChanged(auth, user => {
     document.getElementById("loginPanel").style.display = user ? "none" : "block";
     document.getElementById("mainContent").style.display = user ? "block" : "none";
     if (user) loadEntries();
 });
 
-/* Add Entry */
-document.getElementById("addBtn").addEventListener("click", async () => {
-    const wowClass = document.getElementById("wowClass").value;
+/* ADD ENTRY */
+document.getElementById("addBtn").onclick = async () => {
+    const name = document.getElementById("name").value.trim();
+    const guild = document.getElementById("guild").value.trim();
+    const level = document.getElementById("level").value || "?";
     const race = document.getElementById("race").value;
-    const name = document.getElementById("name").value;
+    const wowClass = document.getElementById("wowClass").value;
 
     if (!name || !race || !wowClass) {
         alert("Name, Rasse und Klasse sind Pflicht");
         return;
     }
 
-    await addDoc(collection(db, "entries"), {
-        name,
-        guild: document.getElementById("guild").value,
-        level: document.getElementById("level").value || "?",
-        race,
+    await addDoc(collection(db,"entries"), {
+        name, guild, level, race,
         class: wowClass,
+        role: classData[wowClass].role,
         createdAt: serverTimestamp()
     });
-});
+};
 
-/* Load Entries */
-function loadEntries() {
-    const q = query(collection(db, "entries"), orderBy("createdAt"));
+/* LOAD */
+function loadEntries(){
+    const q = query(collection(db,"entries"), orderBy("createdAt"));
     onSnapshot(q, snap => {
-        document.getElementById("list").innerHTML = "";
+        const list = document.getElementById("list");
+        list.innerHTML = "";
         snap.forEach(doc => {
             const e = doc.data();
             const div = document.createElement("div");
             div.className = "entry";
-            div.innerHTML = `<strong>${e.name}</strong> – ${e.class}`;
-            document.getElementById("list").appendChild(div);
+            div.style.borderLeftColor = classData[e.class].color;
+            div.innerHTML = `
+                <div class="icon" style="background-image:url(${raceIcons[e.race]})"></div>
+                <div class="icon" style="background-image:url(${classData[e.class].icon})"></div>
+                <div><strong>${e.name}</strong><br><small>${e.guild || ""}</small></div>
+                <div>${e.race}</div>
+                <div>Lvl ${e.level}</div>
+                <div style="color:${classData[e.class].color}">
+                    <strong>${e.class}</strong><br><small>${e.role}</small>
+                </div>
+            `;
+            list.appendChild(div);
         });
     });
 }

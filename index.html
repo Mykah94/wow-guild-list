@@ -94,6 +94,13 @@ const initialClassData = {
   Druide:{ color:"#FF7D0A", role:"Heal", icon:"https://wow.zamimg.com/images/wow/icons/large/class_druid.jpg" }
 };
 
+const raceIcons={Mensch:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_human_male.jpg",
+Zwerg:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_dwarf_male.jpg",
+Nachtelf:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_nightelf_male.jpg",
+Ork:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_orc_male.jpg",
+Untoter:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_undead_male.jpg",
+Tauren:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_tauren_male.jpg"};
+
 const email=document.getElementById("email");
 const password=document.getElementById("password");
 const loginPanel=document.getElementById("loginPanel");
@@ -119,24 +126,28 @@ document.getElementById("registerBtn").onclick=async()=>{
 document.getElementById("loginBtn").onclick=()=>signInWithEmailAndPassword(auth,email.value,password.value).catch(e=>alert(e.message));
 document.getElementById("logoutBtn").onclick=()=>signOut(auth);
 
-/* AUTH STATE & EINMALIGE KLASSEN-INIT */
+/* EINMALIG KLASSEN INIT & AUTH STATE */
+async function ensureClasses(){
+    const colSnap = await getDocs(collection(db,"classes"));
+    if(colSnap.empty){
+        for(const [name,data] of Object.entries(initialClassData)){
+            await setDoc(doc(db,"classes",name), data);
+        }
+        console.log("Alle Klassen einmalig erstellt");
+    }
+}
+
 onAuthStateChanged(auth,async user=>{
-    if(!user){loginPanel.style.display="block"; mainContent.style.display="none"; return;}
-    const snap=await getDoc(doc(db,"users",user.uid));
-    if(!snap.exists()||snap.data().role==="pending"){alert("Account noch nicht freigeschaltet"); signOut(auth); return;}
+    if(!user){ loginPanel.style.display="block"; mainContent.style.display="none"; return; }
+    const snap = await getDoc(doc(db,"users",user.uid));
+    if(!snap.exists() || snap.data().role==="pending"){ alert("Account noch nicht freigeschaltet"); signOut(auth); return; }
+
     loginPanel.style.display="none"; mainContent.style.display="block";
 
-    // einmalige Klassen-Collection erstellen, falls leer
+    // Admin einmalig Klassen erstellen
     if(snap.data().role==="admin"){
         adminPanel.style.display="block";
-        const colSnap = await getDocs(collection(db,"classes"));
-        if(colSnap.empty){
-            for(const [name,data] of Object.entries(initialClassData)){
-                await setDoc(doc(db,"classes",name), data);
-                console.log(`Class ${name} erstellt`);
-            }
-            console.log("Alle Klassen erstellt!");
-        }
+        await ensureClasses();
         loadPending();
     } else { adminPanel.style.display="none"; }
 
@@ -145,12 +156,24 @@ onAuthStateChanged(auth,async user=>{
 
 /* ADD ENTRY */
 document.getElementById("addBtn").onclick=async()=>{
-    if(!nameInput.value||!race.value||!wowClass.value){alert("Name, Rasse und Klasse sind Pflicht"); return;}
+    const snap = await getDoc(doc(db,"users",auth.currentUser.uid));
+    const role = snap.data().role;
+    if(role !== "user" && role !== "admin"){ alert("Du bist noch nicht freigeschaltet!"); return; }
+
+    if(!nameInput.value||!race.value||!wowClass.value){ alert("Name, Rasse und Klasse sind Pflicht"); return; }
+
     await addDoc(collection(db,"entries"),{
-        name:nameInput.value, guild:guild.value, level:level.value||"?", race:race.value,
-        class:wowClass.value, role:initialClassData[wowClass.value].role,
-        createdAt:serverTimestamp()
+        name: nameInput.value,
+        guild: guild.value||"",
+        level: level.value||"?",
+        race: race.value,
+        class: wowClass.value,
+        role: initialClassData[wowClass.value].role,
+        createdAt: serverTimestamp()
     });
+
+    // Formular zurücksetzen
+    nameInput.value=""; guild.value=""; level.value=""; race.value=""; wowClass.value="";
 };
 
 /* LOAD ENTRIES */

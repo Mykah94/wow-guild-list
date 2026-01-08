@@ -101,6 +101,7 @@ Ork:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_orc_mal
 Untoter:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_undead_male.jpg",
 Tauren:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_tauren_male.jpg"};
 
+// ------------------ DOM-Elemente ------------------
 const email=document.getElementById("email");
 const password=document.getElementById("password");
 const loginPanel=document.getElementById("loginPanel");
@@ -114,47 +115,7 @@ const level=document.getElementById("level");
 const race=document.getElementById("race");
 const wowClass=document.getElementById("wowClass");
 
-/* REGISTER */
-document.getElementById("registerBtn").onclick=async()=>{
-    const cred=await createUserWithEmailAndPassword(auth,email.value,password.value);
-    await setDoc(doc(db,"users",cred.user.uid),{role:"pending",email:email.value});
-    alert("Registriert – Admin muss freischalten");
-    signOut(auth);
-};
-
-/* LOGIN */
-document.getElementById("loginBtn").onclick=()=>signInWithEmailAndPassword(auth,email.value,password.value).catch(e=>alert(e.message));
-document.getElementById("logoutBtn").onclick=()=>signOut(auth);
-
-/* EINMALIG KLASSEN INIT & AUTH STATE */
-async function ensureClasses() {
-    const colSnap = await getDocs(collection(db,"classes"));
-    if(colSnap.empty){
-        for(const [name,data] of Object.entries(initialClassData)){
-            await setDoc(doc(db,"classes",name), data);
-        }
-        console.log("Alle Klassen einmalig erstellt");
-    }
-}
-
-onAuthStateChanged(auth, async user=>{
-    if(!user){ loginPanel.style.display="block"; mainContent.style.display="none"; return; }
-    const snap = await getDoc(doc(db,"users",user.uid));
-    if(!snap.exists() || snap.data().role==="pending"){ alert("Account noch nicht freigeschaltet"); signOut(auth); return; }
-
-    loginPanel.style.display="none";
-    mainContent.style.display="block";
-
-    if(snap.data().role==="admin") {
-        adminPanel.style.display="block";
-        await ensureClasses();
-        loadPending();
-    } else { adminPanel.style.display="none"; }
-
-    loadEntries();
-});
-
-/* ADD ENTRY */
+// ------------------ ADD-BUTTON HANDLER (direkt nach DOM) ------------------
 document.getElementById("addBtn").onclick=async()=>{
     try {
         const snap = await getDoc(doc(db,"users",auth.currentUser.uid));
@@ -181,6 +142,34 @@ document.getElementById("addBtn").onclick=async()=>{
         alert("Eintrag erfolgreich hinzugefügt!");
     } catch(e){ alert("Fehler beim Speichern: "+e.message); }
 };
+
+// ------------------ AUTH STATE + Klassen Init ------------------
+async function ensureClasses() {
+    const colSnap = await getDocs(collection(db,"classes"));
+    if(colSnap.empty){
+        for(const [name,data] of Object.entries(initialClassData)){
+            await setDoc(doc(db,"classes",name), data);
+        }
+        console.log("Alle Klassen einmalig erstellt");
+    }
+}
+
+onAuthStateChanged(auth, async user=>{
+    if(!user){ loginPanel.style.display="block"; mainContent.style.display="none"; return; }
+    const snap = await getDoc(doc(db,"users",user.uid));
+    if(!snap.exists() || snap.data().role==="pending"){ alert("Account noch nicht freigeschaltet"); signOut(auth); return; }
+
+    loginPanel.style.display="none";
+    mainContent.style.display="block";
+
+    if(snap.data().role==="admin") {
+        adminPanel.style.display="block";
+        await ensureClasses();
+        loadPending();
+    } else { adminPanel.style.display="none"; }
+
+    loadEntries();
+});
 
 /* LOAD ENTRIES */
 function loadEntries(){
@@ -224,7 +213,6 @@ async function loadPending(){
 }
 
 window.approveUser = async(uid) => { await updateDoc(doc(db,"users",uid),{role:"user"}); loadPending(); }
-
 </script>
 </body>
 </html>

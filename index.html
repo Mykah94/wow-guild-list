@@ -149,14 +149,14 @@ function loadEntries(){
             const div = document.createElement("div");
             div.className="entry";
             div.style.borderLeftColor = initialClassData[e.class].color;
-            const user = auth.currentUser;
 
             div.innerHTML=`
             <div class="icon" style="background-image:url(${raceIcons[e.race]})"></div>
             <div class="icon" style="background-image:url(${initialClassData[e.class].icon})"></div>
             <div><strong>${e.name}</strong><br><small>${e.race} / ${e.class} / ${e.crime}</small></div>
-            ${user && user.uid===e.uid ? `<button onclick="editEntry('${doc.id}','${e.name}','${e.race}','${e.class}','${e.crime}')">✏️</button>
-            <button onclick="deleteEntry('${doc.id}')">🗑</button>` : ''}`;
+            <button onclick="editEntry('${doc.id}','${e.name}','${e.race}','${e.class}','${e.crime}')">✏️</button>
+            <button onclick="deleteEntry('${doc.id}')">🗑</button>
+            `;
             list.appendChild(div);
         });
     });

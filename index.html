@@ -25,44 +25,55 @@ button { cursor:pointer; background:linear-gradient(to bottom,#e0b75a,#8a6b2f); 
 </head>
 <body>
 <div class="container">
-<h1>WoW Classic – Hurensohn-Liste</h1>
+<h1>WoW Classic – Gildenliste</h1>
 
-<!-- LOGIN -->
 <div id="loginPanel">
-    <input type="email" id="email" placeholder="Email">
-    <input type="password" id="password" placeholder="Passwort">
-    <button id="registerBtn">Registrieren</button>
-    <button id="loginBtn">Login</button>
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Passwort">
+  <button id="registerBtn">Registrieren</button>
+  <button id="loginBtn">Login</button>
 </div>
 
 <div id="mainContent" style="display:none;">
-    <div class="form">
-        <input id="name" placeholder="Name">
-        <select id="race">
-            <option value="">Rasse</option>
-            <option>Mensch</option><option>Zwerg</option><option>Nachtelf</option>
-            <option>Ork</option><option>Untoter</option><option>Tauren</option>
-        </select>
-        <select id="wowClass">
-            <option value="">Klasse</option>
-            <option>Krieger</option><option>Magier</option><option>Priester</option>
-            <option>Schurke</option><option>Jäger</option><option>Hexenmeister</option><option>Druide</option>
-        </select>
-    </div>
-    <div class="form-full">
-        <input id="crime" placeholder="Schandtat">
-    </div>
-    <div class="form-buttons">
-        <button id="addBtn">Hinzufügen</button>
-        <button id="logoutBtn">Logout</button>
-    </div>
+  <div class="form">
+    <input id="name" placeholder="Name">
+    <select id="race">
+      <option value="">Rasse</option>
+      <option>Mensch</option>
+      <option>Zwerg</option>
+      <option>Nachtelf</option>
+      <option>Ork</option>
+      <option>Untoter</option>
+      <option>Tauren</option>
+      <option>Blutelf</option>
+    </select>
+    <select id="wowClass">
+      <option value="">Klasse</option>
+      <option>Krieger</option>
+      <option>Magier</option>
+      <option>Priester</option>
+      <option>Schurke</option>
+      <option>Jäger</option>
+      <option>Hexenmeister</option>
+      <option>Druide</option>
+      <option>Paladin</option>
+      <option>Schamane</option>
+    </select>
+  </div>
+  <div class="form-full">
+    <input id="crime" placeholder="Schandtat">
+  </div>
+  <div class="form-buttons">
+    <button id="addBtn">Hinzufügen</button>
+    <button id="logoutBtn">Logout</button>
+  </div>
 
-    <div id="list" class="list"></div>
+  <div id="list" class="list"></div>
 
-    <div id="adminPanel">
-        <h3>Pending-User Freischalten</h3>
-        <div id="pendingList"></div>
-    </div>
+  <div id="adminPanel">
+    <h3>Pending-User Freischalten</h3>
+    <div id="pendingList"></div>
+  </div>
 </div>
 
 <script type="module">
@@ -84,22 +95,25 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 const initialClassData = {
-  Krieger:{ color:"#C79C6E", role:"Tank", icon:"https://wow.zamimg.com/images/wow/icons/large/class_warrior.jpg" },
-  Magier:{ color:"#69CCF0", role:"DPS", icon:"https://wow.zamimg.com/images/wow/icons/large/class_mage.jpg" },
-  Priester:{ color:"#FFFFFF", role:"Heal", icon:"https://wow.zamimg.com/images/wow/icons/large/class_priest.jpg" },
-  Schurke:{ color:"#FFF569", role:"DPS", icon:"https://wow.zamimg.com/images/wow/icons/large/class_rogue.jpg" },
-  Jäger:{ color:"#ABD473", role:"DPS", icon:"https://wow.zamimg.com/images/wow/icons/large/class_hunter.jpg" },
-  Hexenmeister:{ color:"#9482C9", role:"DPS", icon:"https://wow.zamimg.com/images/wow/icons/large/class_warlock.jpg" },
-  Druide:{ color:"#FF7D0A", role:"Heal", icon:"https://wow.zamimg.com/images/wow/icons/large/class_druid.jpg" }
+  Krieger:{color:"#C79C6E",role:"Tank",icon:"https://wow.zamimg.com/images/wow/icons/large/class_warrior.jpg"},
+  Magier:{color:"#69CCF0",role:"DPS",icon:"https://wow.zamimg.com/images/wow/icons/large/class_mage.jpg"},
+  Priester:{color:"#FFFFFF",role:"Heal",icon:"https://wow.zamimg.com/images/wow/icons/large/class_priest.jpg"},
+  Schurke:{color:"#FFF569",role:"DPS",icon:"https://wow.zamimg.com/images/wow/icons/large/class_rogue.jpg"},
+  Jäger:{color:"#ABD473",role:"DPS",icon:"https://wow.zamimg.com/images/wow/icons/large/class_hunter.jpg"},
+  Hexenmeister:{color:"#9482C9",role:"DPS",icon:"https://wow.zamimg.com/images/wow/icons/large/class_warlock.jpg"},
+  Druide:{color:"#FF7D0A",role:"Heal",icon:"https://wow.zamimg.com/images/wow/icons/large/class_druid.jpg"},
+  Paladin:{color:"#F58CBA",role:"Heal/DPS",icon:"https://wow.zamimg.com/images/wow/icons/large/class_paladin.jpg"},
+  Schamane:{color:"#0070DE",role:"Heal/DPS",icon:"https://wow.zamimg.com/images/wow/icons/large/class_shaman.jpg"}
 };
 
-const raceIcons = {
-  Mensch:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_human_male.jpg",
-  Zwerg:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_dwarf_male.jpg",
-  Nachtelf:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_nightelf_male.jpg",
-  Ork:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_orc_male.jpg",
-  Untoter:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_undead_male.jpg",
-  Tauren:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_tauren_male.jpg"
+const raceIcons={
+Mensch:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_human_male.jpg",
+Zwerg:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_dwarf_male.jpg",
+Nachtelf:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_nightelf_male.jpg",
+Ork:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_orc_male.jpg",
+Untoter:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_undead_male.jpg",
+Tauren:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_tauren_male.jpg",
+Blutelf:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_bloodelf_male.jpg"
 };
 
 // DOM
@@ -116,17 +130,13 @@ const adminPanel=document.getElementById("adminPanel");
 const pendingList=document.getElementById("pendingList");
 
 // REGISTER
-document.getElementById("registerBtn").onclick = async () => {
-  try {
+document.getElementById("registerBtn").onclick=async()=>{
+  try{
     const cred = await createUserWithEmailAndPassword(auth,email.value,password.value);
-    // automatisch Firestore Users-Dokument anlegen
-    await setDoc(doc(db,"users",cred.user.uid),{
-      email: email.value,
-      role: "pending"
-    });
+    await setDoc(doc(db,"users",cred.user.uid), {email:email.value,role:"pending"});
     alert("Registriert – Admin muss freischalten");
     signOut(auth);
-  } catch(e){ alert("Fehler: " + e.message); }
+  }catch(e){alert("Fehler: "+e.message);}
 };
 
 // LOGIN / LOGOUT
@@ -134,58 +144,52 @@ document.getElementById("loginBtn").onclick = () => signInWithEmailAndPassword(a
 document.getElementById("logoutBtn").onclick = () => signOut(auth);
 
 // AUTH STATE
-onAuthStateChanged(auth, async user => {
-  if(!user){ loginPanel.style.display="block"; mainContent.style.display="none"; return; }
-
+onAuthStateChanged(auth, async user=>{
+  if(!user){ loginPanel.style.display="block"; mainContent.style.display="none"; return;}
   const snap = await getDoc(doc(db,"users",user.uid));
   if(!snap.exists() || snap.data().role==="pending"){ alert("Noch nicht freigeschaltet"); signOut(auth); return; }
-
   loginPanel.style.display="none"; mainContent.style.display="block";
   const role = snap.data().role;
   if(role==="admin"){ adminPanel.style.display="block"; loadPending(); } else { adminPanel.style.display="none"; }
-
   loadEntries();
 });
 
 // ADD ENTRY
 document.getElementById("addBtn").onclick = async () => {
   const user = auth.currentUser;
-  if(!user || !nameInput.value || !race.value || !wowClass.value || !crimeInput.value){ alert("Alle Felder ausfüllen"); return; }
-
+  if(!user || !nameInput.value || !race.value || !wowClass.value || !crimeInput.value){ alert("Alle Felder ausfüllen"); return;}
   await addDoc(collection(db,"entries"),{
-    uid: user.uid,
-    name: nameInput.value,
-    race: race.value,
-    class: wowClass.value,
-    crime: crimeInput.value,
-    role: initialClassData[wowClass.value].role,
-    createdAt: serverTimestamp()
+    uid:user.uid,
+    name:nameInput.value,
+    race:race.value,
+    class:wowClass.value,
+    crime:crimeInput.value,
+    role:initialClassData[wowClass.value].role,
+    createdAt:serverTimestamp()
   });
-
   nameInput.value=""; race.value=""; wowClass.value=""; crimeInput.value="";
 };
 
 // LOAD ENTRIES
 function loadEntries(){
-  const q = query(collection(db,"entries"), orderBy("createdAt"));
-  onSnapshot(q, snap=>{
+  const q = query(collection(db,"entries"),orderBy("createdAt"));
+  onSnapshot(q,snap=>{
     list.innerHTML="";
     snap.forEach(doc=>{
       const e = doc.data();
       const div = document.createElement("div");
       div.className="entry";
       div.style.borderLeftColor = initialClassData[e.class].color;
-
       div.innerHTML=`
-      <div class="icon" style="background-image:url(${raceIcons[e.race]})"></div>
-      <div class="icon" style="background-image:url(${initialClassData[e.class].icon})"></div>
-      <div>
-        <strong>${e.name}</strong><br>
-        <small>${e.race} / ${e.class}</small><br>
-        <small>Schandtat: ${e.crime}</small>
-      </div>
-      <button onclick="editEntry('${doc.id}','${e.name}','${e.race}','${e.class}','${e.crime}')">✏️</button>
-      <button onclick="deleteEntry('${doc.id}')">🗑</button>
+        <div class="icon" style="background-image:url(${raceIcons[e.race]})"></div>
+        <div class="icon" style="background-image:url(${initialClassData[e.class].icon})"></div>
+        <div>
+          <strong>${e.name}</strong><br>
+          <small>${e.race} / ${e.class}</small><br>
+          <small>Schandtat: ${e.crime}</small>
+        </div>
+        <button onclick="editEntry('${doc.id}','${e.name}','${e.race}','${e.class}','${e.crime}')">✏️</button>
+        <button onclick="deleteEntry('${doc.id}')">🗑</button>
       `;
       list.appendChild(div);
     });
@@ -193,43 +197,41 @@ function loadEntries(){
 }
 
 // EDIT ENTRY
-window.editEntry = async (id,name,raceVal,classVal,crime)=>{
+window.editEntry=async(id,name,raceVal,classVal,crime)=>{
   const newName = prompt("Neuer Name:",name);
   const newRace = prompt("Neue Rasse:",raceVal);
   const newClass = prompt("Neue Klasse:",classVal);
   const newCrime = prompt("Neue Schandtat:",crime);
-
   if(newName && newRace && newClass && newCrime){
     await updateDoc(doc(db,"entries",id),{
       name:newName,
       race:newRace,
       class:newClass,
       crime:newCrime,
-      role: initialClassData[newClass].role
+      role:initialClassData[newClass].role
     });
   }
 };
 
 // DELETE ENTRY
-window.deleteEntry = async (id) => { if(confirm("Eintrag löschen?")) await deleteDoc(doc(db,"entries",id)); }
+window.deleteEntry = async(id)=>{if(confirm("Eintrag löschen?")) await deleteDoc(doc(db,"entries",id));}
 
 // ADMIN PANEL
 async function loadPending(){
   pendingList.innerHTML="";
   const querySnapshot = await getDocs(collection(db,"users"));
-  querySnapshot.forEach((docu) => {
+  querySnapshot.forEach((docu)=>{
     const u = docu.data();
     if(u.role==="pending"){
-      const div = document.createElement("div");
-      div.className = "adminUser";
+      const div=document.createElement("div");
+      div.className="adminUser";
       div.innerHTML=`${u.email} <button onclick="approveUser('${docu.id}')">Freischalten</button>`;
       pendingList.appendChild(div);
     }
   });
 }
-window.approveUser = async(uid) => { await updateDoc(doc(db,"users",uid),{role:"user"}); loadPending(); }
+window.approveUser = async(uid)=>{await updateDoc(doc(db,"users",uid),{role:"user"}); loadPending();}
 
 </script>
 </body>
 </html>
-

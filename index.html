@@ -13,7 +13,7 @@ button { cursor:pointer; background:linear-gradient(to bottom,#e0b75a,#8a6b2f); 
 #loginPanel { max-width:400px; margin:20px auto; padding:20px; background:#1a1208; border-radius:12px; }
 .form { display:grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-bottom:20px; }
 .list { margin-top:30px; }
-.entry { display:grid; grid-template-columns:44px 44px 2fr 1fr 80px 1fr 50px; gap:12px; align-items:center; padding:12px; background:linear-gradient(180deg,#1a1208,#0d0904); border:2px solid #8c6a32; border-left:8px solid; border-radius:8px; }
+.entry { display:grid; grid-template-columns:44px 44px 2fr 1fr 80px 1.2fr 50px; gap:12px; align-items:center; padding:12px; background:linear-gradient(180deg,#1a1208,#0d0904); border:2px solid #8c6a32; border-left:8px solid; border-radius:8px; }
 .icon { width:40px; height:40px; background-size:cover; background-position:center; border:2px solid #c9a44c; border-radius:4px; }
 .class-name { font-weight:bold; text-shadow:0 0 6px #000; }
 #adminPanel { margin-top:20px; background:#1a1208; padding:10px; border-radius:8px; border:2px solid #8c6a32; display:none; }
@@ -25,6 +25,7 @@ button { cursor:pointer; background:linear-gradient(to bottom,#e0b75a,#8a6b2f); 
 <div class="container">
 <h1>WoW Classic – Gildenliste</h1>
 
+<!-- LOGIN -->
 <div id="loginPanel">
     <input type="email" id="email" placeholder="Email">
     <input type="password" id="password" placeholder="Passwort">
@@ -32,6 +33,7 @@ button { cursor:pointer; background:linear-gradient(to bottom,#e0b75a,#8a6b2f); 
     <button id="loginBtn">Login</button>
 </div>
 
+<!-- MAIN CONTENT -->
 <div id="mainContent" style="display:none;">
 <div class="form">
     <input id="name" placeholder="Name">
@@ -53,7 +55,7 @@ button { cursor:pointer; background:linear-gradient(to bottom,#e0b75a,#8a6b2f); 
 
 <div id="list" class="list"></div>
 
-<!-- Admin Panel -->
+<!-- ADMIN PANEL -->
 <div id="adminPanel">
     <h3>Pending-User Freischalten</h3>
     <div id="pendingList"></div>
@@ -81,7 +83,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* Data */
+/* DATA */
 const classData = {Krieger:{color:"#C79C6E",role:"Tank",icon:"https://wow.zamimg.com/images/wow/icons/large/class_warrior.jpg"},
 Magier:{color:"#69CCF0",role:"DPS",icon:"https://wow.zamimg.com/images/wow/icons/large/class_mage.jpg"},
 Priester:{color:"#FFFFFF",role:"Heal",icon:"https://wow.zamimg.com/images/wow/icons/large/class_priest.jpg"},
@@ -97,6 +99,7 @@ Ork:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_orc_mal
 Untoter:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_undead_male.jpg",
 Tauren:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_tauren_male.jpg"};
 
+/* DOM */
 const email=document.getElementById("email");
 const password=document.getElementById("password");
 const loginPanel=document.getElementById("loginPanel");
@@ -114,7 +117,7 @@ const wowClass=document.getElementById("wowClass");
 document.getElementById("registerBtn").onclick=async()=>{
     const cred=await createUserWithEmailAndPassword(auth,email.value,password.value);
     await setDoc(doc(db,"users",cred.user.uid),{role:"pending",email:email.value});
-    alert("Registriert – Freigabe durch Admin nötig");
+    alert("Registriert – Admin muss freischalten");
     signOut(auth);
 };
 
@@ -160,7 +163,7 @@ function loadEntries(){
             <div>${e.race}</div>
             <div>Lvl ${e.level}</div>
             <div class="class-name" style="color:${classData[e.class].color}">${e.class}<br><small>${e.role}</small></div>
-            ${getCurrentRole()==="admin"?`<button onclick="deleteEntry('${doc.id}')">🗑</button>`:""}`; 
+            ${getCurrentRole()==="admin"?`<button onclick="deleteEntry('${doc.id}')">🗑</button>`:""}`;
             list.appendChild(div);
         });
     });
@@ -185,10 +188,7 @@ async function loadPending(){
 }
 
 /* APPROVE USER */
-window.approveUser=async(uid)=>{
-    await updateDoc(doc(db,"users",uid),{role:"user"});
-    loadPending();
-};
+window.approveUser=async(uid)=>{await updateDoc(doc(db,"users",uid),{role:"user"}); loadPending();};
 
 /* HELPER */
 function getCurrentRole(){return auth.currentUser?document.getElementById("adminPanel").style.display==="block"?"admin":"user":"none";}

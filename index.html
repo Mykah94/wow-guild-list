@@ -83,23 +83,17 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* DATA */
-const classData = {Krieger:{color:"#C79C6E",role:"Tank",icon:"https://wow.zamimg.com/images/wow/icons/large/class_warrior.jpg"},
-Magier:{color:"#69CCF0",role:"DPS",icon:"https://wow.zamimg.com/images/wow/icons/large/class_mage.jpg"},
-Priester:{color:"#FFFFFF",role:"Heal",icon:"https://wow.zamimg.com/images/wow/icons/large/class_priest.jpg"},
-Schurke:{color:"#FFF569",role:"DPS",icon:"https://wow.zamimg.com/images/wow/icons/large/class_rogue.jpg"},
-Jäger:{color:"#ABD473",role:"DPS",icon:"https://wow.zamimg.com/images/wow/icons/large/class_hunter.jpg"},
-Hexenmeister:{color:"#9482C9",role:"DPS",icon:"https://wow.zamimg.com/images/wow/icons/large/class_warlock.jpg"},
-Druide:{color:"#FF7D0A",role:"Heal",icon:"https://wow.zamimg.com/images/wow/icons/large/class_druid.jpg"}};
+/* HARD-CODED KLASSEN */
+const initialClassData = {
+  Krieger:{ color:"#C79C6E", role:"Tank", icon:"https://wow.zamimg.com/images/wow/icons/large/class_warrior.jpg" },
+  Magier:{ color:"#69CCF0", role:"DPS", icon:"https://wow.zamimg.com/images/wow/icons/large/class_mage.jpg" },
+  Priester:{ color:"#FFFFFF", role:"Heal", icon:"https://wow.zamimg.com/images/wow/icons/large/class_priest.jpg" },
+  Schurke:{ color:"#FFF569", role:"DPS", icon:"https://wow.zamimg.com/images/wow/icons/large/class_rogue.jpg" },
+  Jäger:{ color:"#ABD473", role:"DPS", icon:"https://wow.zamimg.com/images/wow/icons/large/class_hunter.jpg" },
+  Hexenmeister:{ color:"#9482C9", role:"DPS", icon:"https://wow.zamimg.com/images/wow/icons/large/class_warlock.jpg" },
+  Druide:{ color:"#FF7D0A", role:"Heal", icon:"https://wow.zamimg.com/images/wow/icons/large/class_druid.jpg" }
+};
 
-const raceIcons={Mensch:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_human_male.jpg",
-Zwerg:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_dwarf_male.jpg",
-Nachtelf:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_nightelf_male.jpg",
-Ork:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_orc_male.jpg",
-Untoter:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_undead_male.jpg",
-Tauren:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_tauren_male.jpg"};
-
-/* DOM */
 const email=document.getElementById("email");
 const password=document.getElementById("password");
 const loginPanel=document.getElementById("loginPanel");
@@ -125,15 +119,28 @@ document.getElementById("registerBtn").onclick=async()=>{
 document.getElementById("loginBtn").onclick=()=>signInWithEmailAndPassword(auth,email.value,password.value).catch(e=>alert(e.message));
 document.getElementById("logoutBtn").onclick=()=>signOut(auth);
 
-/* AUTH STATE */
+/* AUTH STATE & EINMALIGE KLASSEN-INIT */
 onAuthStateChanged(auth,async user=>{
     if(!user){loginPanel.style.display="block"; mainContent.style.display="none"; return;}
     const snap=await getDoc(doc(db,"users",user.uid));
     if(!snap.exists()||snap.data().role==="pending"){alert("Account noch nicht freigeschaltet"); signOut(auth); return;}
     loginPanel.style.display="none"; mainContent.style.display="block";
+
+    // einmalige Klassen-Collection erstellen, falls leer
+    if(snap.data().role==="admin"){
+        adminPanel.style.display="block";
+        const colSnap = await getDocs(collection(db,"classes"));
+        if(colSnap.empty){
+            for(const [name,data] of Object.entries(initialClassData)){
+                await setDoc(doc(db,"classes",name), data);
+                console.log(`Class ${name} erstellt`);
+            }
+            console.log("Alle Klassen erstellt!");
+        }
+        loadPending();
+    } else { adminPanel.style.display="none"; }
+
     loadEntries();
-    if(snap.data().role==="admin"){adminPanel.style.display="block"; loadPending();}
-    else{adminPanel.style.display="none";}
 });
 
 /* ADD ENTRY */
@@ -141,7 +148,7 @@ document.getElementById("addBtn").onclick=async()=>{
     if(!nameInput.value||!race.value||!wowClass.value){alert("Name, Rasse und Klasse sind Pflicht"); return;}
     await addDoc(collection(db,"entries"),{
         name:nameInput.value, guild:guild.value, level:level.value||"?", race:race.value,
-        class:wowClass.value, role:classData[wowClass.value].role,
+        class:wowClass.value, role:initialClassData[wowClass.value].role,
         createdAt:serverTimestamp()
     });
 };
@@ -155,15 +162,15 @@ function loadEntries(){
             const e=doc.data();
             const div=document.createElement("div");
             div.className="entry";
-            div.style.borderLeftColor=classData[e.class].color;
+            div.style.borderLeftColor=initialClassData[e.class].color;
             div.innerHTML=`
             <div class="icon" style="background-image:url(${raceIcons[e.race]})"></div>
-            <div class="icon" style="background-image:url(${classData[e.class].icon})"></div>
+            <div class="icon" style="background-image:url(${initialClassData[e.class].icon})"></div>
             <div><strong>${e.name}</strong><br><small>${e.guild||""}</small></div>
             <div>${e.race}</div>
             <div>Lvl ${e.level}</div>
-            <div class="class-name" style="color:${classData[e.class].color}">${e.class}<br><small>${e.role}</small></div>
-            ${getCurrentRole()==="admin"?`<button onclick="deleteEntry('${doc.id}')">🗑</button>`:""}`;
+            <div class="class-name" style="color:${initialClassData[e.class].color}">${e.class}<br><small>${initialClassData[e.class].role}</small></div>
+            ${snap.data?.role==="admin"?`<button onclick="deleteEntry('${doc.id}')">🗑</button>`:""}`;
             list.appendChild(div);
         });
     });
@@ -172,7 +179,7 @@ function loadEntries(){
 /* DELETE ENTRY */
 window.deleteEntry=async(id)=>{if(confirm("Eintrag löschen?")) await deleteDoc(doc(db,"entries",id));};
 
-/* ADMIN PANEL LOAD PENDING */
+/* ADMIN PANEL */
 async function loadPending(){
     pendingList.innerHTML="";
     const q=await getDocs(collection(db,"users"));
@@ -187,11 +194,7 @@ async function loadPending(){
     });
 }
 
-/* APPROVE USER */
-window.approveUser=async(uid)=>{await updateDoc(doc(db,"users",uid),{role:"user"}); loadPending();};
-
-/* HELPER */
-function getCurrentRole(){return auth.currentUser?document.getElementById("adminPanel").style.display==="block"?"admin":"user":"none";}
+window.approveUser=async(uid)=>{await updateDoc(doc(db,"users",uid),{role:"user"}); loadPending();}
 </script>
 </body>
 </html>

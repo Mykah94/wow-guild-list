@@ -114,11 +114,34 @@ const soundUp = new Audio("https://raw.githubusercontent.com/johndoe/wow-sounds/
 const soundDown = new Audio("https://raw.githubusercontent.com/johndoe/wow-sounds/main/fail.mp3");
 
 // Klassen & Rassen
+/* ICONS */
 const classes=["Krieger","Paladin","Jäger","Schurke","Priester","Schamane","Magier","Hexenmeister","Druide"];
 const races=["Mensch","Zwerg","Nachtelf","Gnom","Draenei","Ork","Troll","Tauren","Untoter","Blutelf"];
 
-const classIcons={ /* ... gleiche wie vorher ... */ };
-const raceIcons={ /* ... gleiche wie vorher ... */ };
+const classIcons={
+Krieger:"https://wow.zamimg.com/images/wow/icons/large/class_warrior.jpg",
+Paladin:"https://wow.zamimg.com/images/wow/icons/large/class_paladin.jpg",
+Jäger:"https://wow.zamimg.com/images/wow/icons/large/class_hunter.jpg",
+Schurke:"https://wow.zamimg.com/images/wow/icons/large/class_rogue.jpg",
+Priester:"https://wow.zamimg.com/images/wow/icons/large/class_priest.jpg",
+Schamane:"https://wow.zamimg.com/images/wow/icons/large/class_shaman.jpg",
+Magier:"https://wow.zamimg.com/images/wow/icons/large/class_mage.jpg",
+Hexenmeister:"https://wow.zamimg.com/images/wow/icons/large/class_warlock.jpg",
+Druide:"https://wow.zamimg.com/images/wow/icons/large/class_druid.jpg"
+};
+
+const raceIcons={
+Mensch:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_human_male.jpg",
+Zwerg:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_dwarf_male.jpg",
+Nachtelf:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_nightelf_male.jpg",
+Gnom:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_gnome_male.jpg",
+Draenei:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_draenei_male.jpg",
+Ork:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_orc_male.jpg",
+Troll:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_troll_male.jpg",
+Tauren:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_tauren_male.jpg",
+Untoter:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_undead_male.jpg",
+Blutelf:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_bloodelf_male.jpg"
+};
 
 // Fill Selects
 const fill=(id,arr)=>{const s=document.getElementById(id);arr.forEach(v=>{const o=document.createElement("option");o.value=o.text=v;s.appendChild(o);});};
@@ -229,3 +252,4 @@ window.approve=uid=>updateDoc(doc(db,"users",uid),{role:"user"}).then(loadPendin
 </script>
 </body>
 </html>
+

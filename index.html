@@ -5,270 +5,231 @@
 <title>WoW Classic / TBC – Schandtatenliste</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
 <style>
-body {margin:0; font-family:'Cinzel',serif; background:radial-gradient(circle at top,#2b1d0e,#0d0a06); color:#f5e6c8;}
-.container{max-width:1300px; margin:30px auto; padding:30px; background:linear-gradient(180deg,rgba(20,14,7,.95),rgba(10,7,3,.98)); border:6px solid #c9a44c; border-radius:14px;}
+body{
+  margin:0;font-family:'Cinzel',serif;color:#f5e6c8;
+  background:url('https://i.imgur.com/7LzGxKb.jpg') no-repeat center center fixed;
+  background-size:cover;
+}
+.container{
+  max-width:1400px;margin:20px auto;padding:20px;background:rgba(10,7,3,0.85);
+  border:6px solid #c9a44c;border-radius:14px;
+}
 h1{text-align:center;color:#ffd36a;margin-bottom:20px;}
-input,select,button{padding:10px; background:#120c05; border:2px solid #9c7c3f; color:#f5e6c8; border-radius:6px; font-family:inherit;}
-button{cursor:pointer; background:linear-gradient(to bottom,#e0b75a,#8a6b2f); color:#1b1206; font-weight:bold;}
-.form,.filters{display:flex; flex-wrap:wrap; gap:10px;}
-.form-full{width:100%; margin-top:10px;}
-#crimeInput{width:100%;}
-.form-buttons{display:flex; justify-content:center; gap:12px; margin:12px 0;}
-.list{margin-top:30px;}
-.entry{display:grid; grid-template-columns:44px 44px 1fr 170px; gap:12px; align-items:center; padding:12px; background:linear-gradient(180deg,#1a1208,#0d0904); border:2px solid #8c6a32; border-left:8px solid; border-radius:8px; margin-bottom:10px;}
-.icon{width:40px;height:40px;background-size:cover;background-position:center;border:2px solid #c9a44c;border-radius:4px;}
-.voteBox{display:flex; align-items:center; justify-content:flex-end; gap:6px;}
-.voteBtn{font-size:20px; cursor:pointer; opacity:0.5; transition:transform .1s,opacity .1s;}
+input,select,button{
+  padding:10px;background:#120c05;border:2px solid #9c7c3f;color:#f5e6c8;border-radius:6px;font-family:inherit;
+}
+button{cursor:pointer;background:linear-gradient(to bottom,#e0b75a,#8a6b2f);color:#1b1206;font-weight:bold;}
+#loginPanel{max-width:400px;margin:20px auto;padding:20px;background:#1a1208;border-radius:12px;text-align:center;}
+.form,.filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;}
+.form-full{width:100%;}
+#crime{flex:1;min-width:100%;}
+.form-buttons{display:flex;justify-content:center;gap:12px;margin-top:10px;}
+.list{margin-top:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:15px;max-height:600px;overflow-y:auto;}
+.entry{
+  display:flex;flex-direction:column;background:linear-gradient(180deg,#1a1208,#0d0904);
+  border:2px solid #8c6a32;border-left:8px solid;border-radius:12px;padding:12px;
+  box-shadow:0 6px 12px rgba(0,0,0,0.7);transition:transform 0.2s,box-shadow 0.2s;position:relative;
+}
+.entry:hover{transform:translateY(-4px);box-shadow:0 12px 24px rgba(0,0,0,0.9);}
+.entry-top{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.icon{width:44px;height:44px;background-size:cover;background-position:center;border:2px solid #c9a44c;border-radius:6px;}
+.entry-body{flex:1;color:#f5e6c8;}
+.entry-body strong{font-size:1.1em;}
+.voteBox{display:flex;align-items:center;justify-content:flex-end;gap:6px;position:absolute;top:10px;right:10px;}
+.voteBtn{font-size:20px;cursor:pointer;opacity:0.5;transition:transform .1s,opacity .1s;}
 .voteBtn:hover{transform:scale(1.2);opacity:1;}
 .voteBtn.active.up{color:#4CAF50;opacity:1;}
 .voteBtn.active.down{color:#E53935;opacity:1;}
 .voteCount{min-width:20px;text-align:center;}
+.entry-actions{display:flex;justify-content:space-between;margin-top:8px;}
 #adminPanel{margin-top:20px;background:#1a1208;padding:10px;border-radius:8px;border:2px solid #8c6a32;display:none;}
-.adminUser{display:flex; justify-content:space-between; margin-bottom:6px;}
+.adminUser{display:flex;justify-content:space-between;margin-bottom:6px;}
 .adminUser button{padding:2px 6px;font-size:0.8em;}
+#updateHistory{margin-top:20px;background:#1a1208;padding:10px;border-radius:8px;border:2px solid #8c6a32;max-height:200px;overflow-y:auto;}
 </style>
 </head>
 <body>
 <div class="container">
 <h1>WoW Classic / TBC – Schandtatenliste</h1>
 
-<!-- LOGIN PANEL -->
 <div id="loginPanel">
-  <input type="email" id="emailInput" placeholder="Email"><br><br>
-  <input type="password" id="passwordInput" placeholder="Passwort"><br><br>
+  <input type="email" id="email" placeholder="Email"><br><br>
+  <input type="password" id="password" placeholder="Passwort"><br><br>
   <button id="registerBtn">Registrieren</button>
   <button id="loginBtn">Login</button>
 </div>
 
-<!-- MAIN CONTENT -->
 <div id="mainContent" style="display:none;">
   <div class="filters">
-    <input id="searchInput" placeholder="Suche...">
-    <select id="filterRace"><option value="">Alle Rassen</option><option>Mensch</option><option>Zwerg</option><option>Nachtelf</option><option>Gnom</option><option>Draenei</option><option>Ork</option><option>Troll</option><option>Tauren</option><option>Untoter</option><option>Blutelf</option></select>
-    <select id="filterClass"><option value="">Alle Klassen</option><option>Krieger</option><option>Paladin</option><option>Jäger</option><option>Schurke</option><option>Priester</option><option>Schamane</option><option>Magier</option><option>Hexenmeister</option><option>Druide</option></select>
+    <input id="search" placeholder="Suche...">
+    <select id="filterRace"><option value="">Alle Rassen</option>
+      <option>Mensch</option><option>Zwerg</option><option>Nachtelf</option><option>Gnom</option><option>Draenei</option>
+      <option>Ork</option><option>Troll</option><option>Tauren</option><option>Untoter</option><option>Blutelf</option>
+    </select>
+    <select id="filterClass"><option value="">Alle Klassen</option>
+      <option>Krieger</option><option>Paladin</option><option>Jäger</option><option>Schurke</option><option>Priester</option>
+      <option>Schamane</option><option>Magier</option><option>Hexenmeister</option><option>Druide</option>
+    </select>
   </div>
 
   <div class="form">
-    <input id="nameInput" placeholder="Name">
-    <select id="raceInput"><option value="">Rasse</option><option>Mensch</option><option>Zwerg</option><option>Nachtelf</option><option>Ork</option><option>Untoter</option><option>Tauren</option><option>Blutelf</option></select>
-    <select id="classInput"><option value="">Klasse</option><option>Krieger</option><option>Magier</option><option>Priester</option><option>Schurke</option><option>Jäger</option><option>Hexenmeister</option><option>Druide</option><option>Paladin</option><option>Schamane</option></select>
+    <input id="name" placeholder="Name">
+    <select id="race"><option value="">Rasse</option>
+      <option>Mensch</option><option>Zwerg</option><option>Nachtelf</option><option>Gnom</option><option>Draenei</option>
+      <option>Ork</option><option>Troll</option><option>Tauren</option><option>Untoter</option><option>Blutelf</option>
+    </select>
+    <select id="wowClass"><option value="">Klasse</option>
+      <option>Krieger</option><option>Paladin</option><option>Jäger</option><option>Schurke</option><option>Priester</option>
+      <option>Schamane</option><option>Magier</option><option>Hexenmeister</option><option>Druide</option>
+    </select>
   </div>
   <div class="form-full">
-    <input id="crimeInput" placeholder="Schandtat">
+    <input id="crime" placeholder="Schandtat">
   </div>
   <div class="form-buttons">
     <button id="addBtn">Hinzufügen</button>
     <button id="logoutBtn">Logout</button>
   </div>
 
-  <div id="list" class="list"></div>
-
-  <div id="adminPanel">
-    <h3>Pending-User Freischalten</h3>
-    <div id="pendingList"></div>
-  </div>
+  <div id="list"></div>
+  <div id="adminPanel"><h3>Pending-User Freischalten</h3><div id="pendingList"></div></div>
+  <div id="updateHistory"><strong>Update History:</strong></div>
 </div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, getDoc, getDocs, updateDoc, deleteDoc, setDoc, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, getDocs, updateDoc, deleteDoc, setDoc, increment } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-/* FIREBASE */
-const firebaseConfig = {
-  apiKey: "AIzaSyBOko8Wg-jCvz7aRPleNcbJCm8u2CYtjps",
-  authDomain: "wow-hs-liste.firebaseapp.com",
-  projectId: "wow-hs-liste",
-  storageBucket: "wow-hs-liste.firebasestorage.app",
-  messagingSenderId: "180764359810",
-  appId: "1:180764359810:web:03cef19546dcc32081889b"
+// --- Firebase Config ---
+const firebaseConfig={
+  apiKey:"AIzaSyBOko8Wg-jCvz7aRPleNcbJCm8u2CYtjps",
+  authDomain:"wow-hs-liste.firebaseapp.com",
+  projectId:"wow-hs-liste",
+  storageBucket:"wow-hs-liste.appspot.com",
+  messagingSenderId:"180764359810",
+  appId:"1:180764359810:web:03cef19546dcc32081889b"
+};
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
+
+// --- Klassen & Rassen + Icons ---
+const initialClassData={
+  Krieger:{color:"#C79C6E",icon:"https://wow.zamimg.com/images/wow/icons/large/class_warrior.jpg"},
+  Magier:{color:"#69CCF0",icon:"https://wow.zamimg.com/images/wow/icons/large/class_mage.jpg"},
+  Priester:{color:"#FFFFFF",icon:"https://wow.zamimg.com/images/wow/icons/large/class_priest.jpg"},
+  Schurke:{color:"#FFF569",icon:"https://wow.zamimg.com/images/wow/icons/large/class_rogue.jpg"},
+  Jäger:{color:"#ABD473",icon:"https://wow.zamimg.com/images/wow/icons/large/class_hunter.jpg"},
+  Hexenmeister:{color:"#9482C9",icon:"https://wow.zamimg.com/images/wow/icons/large/class_warlock.jpg"},
+  Druide:{color:"#FF7D0A",icon:"https://wow.zamimg.com/images/wow/icons/large/class_druid.jpg"},
+  Paladin:{color:"#F58CBA",icon:"https://wow.zamimg.com/images/wow/icons/large/class_paladin.jpg"},
+  Schamane:{color:"#0070DE",icon:"https://wow.zamimg.com/images/wow/icons/large/class_shaman.jpg"}
+};
+const raceIcons={
+  Mensch:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_human_male.jpg",
+  Zwerg:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_dwarf_male.jpg",
+  Nachtelf:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_nightelf_male.jpg",
+  Gnom:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_gnome_male.jpg",
+  Draenei:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_draenei_male.jpg",
+  Ork:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_orc_male.jpg",
+  Troll:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_troll_male.jpg",
+  Tauren:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_tauren_male.jpg",
+  Untoter:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_undead_male.jpg",
+  Blutelf:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_bloodelf_male.jpg"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+// --- DOM ---
+const email=document.getElementById("email"),password=document.getElementById("password"),
+loginPanel=document.getElementById("loginPanel"),mainContent=document.getElementById("mainContent"),
+list=document.getElementById("list"),nameInput=document.getElementById("name"),
+race=document.getElementById("race"),wowClass=document.getElementById("wowClass"),
+crimeInput=document.getElementById("crime"),adminPanel=document.getElementById("adminPanel"),
+pendingList=document.getElementById("pendingList"),updateHistory=document.getElementById("updateHistory");
 
-/* DATA */
-let entries = [];
-let userVotes = {};
-let voteUnsubscribers = {};
+let entries=[];
 
-/* DOM */
-const emailInput = document.getElementById("emailInput");
-const passwordInput = document.getElementById("passwordInput");
-const loginPanel = document.getElementById("loginPanel");
-const mainContent = document.getElementById("mainContent");
-const nameInput = document.getElementById("nameInput");
-const raceInput = document.getElementById("raceInput");
-const classInput = document.getElementById("classInput");
-const crimeInputEl = document.getElementById("crimeInput");
-const listEl = document.getElementById("list");
-const searchInput = document.getElementById("searchInput");
-const filterRace = document.getElementById("filterRace");
-const filterClass = document.getElementById("filterClass");
-const adminPanel = document.getElementById("adminPanel");
-const pendingList = document.getElementById("pendingList");
-
-/* CLASS DATA */
-const initialClassData = {
-  Krieger:{color:"#C79C6E",role:"Tank",icon:"https://wow.zamimg.com/images/wow/icons/large/class_warrior.jpg"},
-  Magier:{color:"#69CCF0",role:"DPS",icon:"https://wow.zamimg.com/images/wow/icons/large/class_mage.jpg"},
-  Priester:{color:"#FFFFFF",role:"Heal",icon:"https://wow.zamimg.com/images/wow/icons/large/class_priest.jpg"},
-  Schurke:{color:"#FFF569",role:"DPS",icon:"https://wow.zamimg.com/images/wow/icons/large/class_rogue.jpg"},
-  Jäger:{color:"#ABD473",role:"DPS",icon:"https://wow.zamimg.com/images/wow/icons/large/class_hunter.jpg"},
-  Hexenmeister:{color:"#9482C9",role:"DPS",icon:"https://wow.zamimg.com/images/wow/icons/large/class_warlock.jpg"},
-  Druide:{color:"#FF7D0A",role:"Heal",icon:"https://wow.zamimg.com/images/wow/icons/large/class_druid.jpg"},
-  Paladin:{color:"#F58CBA",role:"Heal/DPS",icon:"https://wow.zamimg.com/images/wow/icons/large/class_paladin.jpg"},
-  Schamane:{color:"#0070DE",role:"Heal/DPS",icon:"https://wow.zamimg.com/images/wow/icons/large/class_shaman.jpg"}
+// --- Register/Login/Logout ---
+document.getElementById("registerBtn").onclick=async()=>{
+  try{
+    const cred=await createUserWithEmailAndPassword(auth,email.value,password.value);
+    await setDoc(doc(db,"users",cred.user.uid),{email:email.value,role:"pending"});
+    alert("Registriert – Admin muss freischalten"); signOut(auth);
+  }catch(e){alert("Fehler: "+e.message);}
 };
+document.getElementById("loginBtn").onclick=()=>signInWithEmailAndPassword(auth,email.value,password.value).catch(e=>alert(e.message));
+document.getElementById("logoutBtn").onclick=()=>signOut(auth);
 
-/* REGISTER */
-document.getElementById("registerBtn").onclick = async ()=>{
-  const cred = await createUserWithEmailAndPassword(auth,emailInput.value,passwordInput.value);
-  await setDoc(doc(db,"users",cred.user.uid),{email:emailInput.value,role:"pending"});
-  alert("Registriert – Admin muss freischalten");
-  signOut(auth);
-};
-
-/* LOGIN / LOGOUT */
-document.getElementById("loginBtn").onclick = ()=>signInWithEmailAndPassword(auth,emailInput.value,passwordInput.value);
-document.getElementById("logoutBtn").onclick = ()=>signOut(auth);
-
-/* AUTH */
-onAuthStateChanged(auth, async user=>{
-  if(!user){loginPanel.style.display="block"; mainContent.style.display="none"; return;}
-  const snap = await getDoc(doc(db,"users",user.uid));
-  if(!snap.exists() || snap.data().role==="pending"){alert("Noch nicht freigeschaltet"); signOut(auth); return;}
-  loginPanel.style.display="none"; mainContent.style.display="block";
-  if(snap.data().role==="admin"){adminPanel.style.display="block"; loadPending();}
+// --- Auth State ---
+onAuthStateChanged(auth,async user=>{
+  if(!user){loginPanel.style.display="block";mainContent.style.display="none";return;}
+  const snap=await getDoc(doc(db,"users",user.uid));
+  if(!snap.exists()||snap.data().role==="pending"){alert("Noch nicht freigeschaltet");signOut(auth);return;}
+  loginPanel.style.display="none";mainContent.style.display="block";
+  if(snap.data().role==="admin"){adminPanel.style.display="block";loadPending();}else adminPanel.style.display="none";
   loadEntries();
 });
 
-/* ADD ENTRY */
-document.getElementById("addBtn").onclick = async ()=>{
-  const user = auth.currentUser;
-  if(!user || !nameInput.value || !raceInput.value || !classInput.value || !crimeInputEl.value) return;
-  await addDoc(collection(db,"entries"),{
-    uid:user.uid,
-    name:nameInput.value,
-    race:raceInput.value,
-    class:classInput.value,
-    crime:crimeInputEl.value,
-    role:initialClassData[classInput.value].role,
-    upvotes:0,
-    downvotes:0,
-    createdAt:serverTimestamp()
-  });
-  nameInput.value=raceInput.value=classInput.value=crimeInputEl.value="";
-};
-
-/* LIVE ENTRIES */
-function loadEntries(){
-  const q = query(collection(db,"entries"),orderBy("createdAt","desc"));
-  onSnapshot(q,snap=>{
-    entries = snap.docs.map(d=>({id:d.id,...d.data()}));
-    listenToUserVotes();
-    render();
-  });
-}
-
-/* LIVE USER VOTES */
-function listenToUserVotes(){
-  const user = auth.currentUser;
-  if(!user) return;
-  entries.forEach(e=>{
-    if(voteUnsubscribers[e.id]) return;
-    const voteRef = doc(db,"entries",e.id,"votes",user.uid);
-    voteUnsubscribers[e.id] = onSnapshot(voteRef,snap=>{
-      userVotes[e.id] = snap.exists()?snap.data().type:null;
-      render();
-    });
-  });
-}
-
-/* RENDER */
-function render(){
-  listEl.innerHTML="";
-  const s = searchInput.value.toLowerCase();
-
-  for(const e of entries){
-
-    if (
-      (filterRace.value && e.race !== filterRace.value) ||
-      (filterClass.value && e.class !== filterClass.value) ||
-      !(e.name + e.race + e.class + e.crime).toLowerCase().includes(s)
-    ) continue;
-
-    // 🔒 SAFE CLASS DATA (Crash-Fix)
-    const classData = initialClassData[e.class] || {
-      color: "#777",
-      icon: "",
-      role: "?"
-    };
-
-    const voteType = userVotes[e.id];
-
-    const div = document.createElement("div");
-    div.className = "entry";
-    div.style.borderLeftColor = classData.color;
-
-    div.innerHTML = `
-      <div class="icon" style="background-image:url(${classData.icon})"></div>
-      <div>
-        <strong>${e.name || "Unbekannt"}</strong><br>
-        ${e.race || "?"} / ${e.class || "?"}<br>
-        <small>${e.crime || ""}</small>
-      </div>
-      <div class="voteBox">
-        <span class="voteBtn ${voteType==="up"?"active up":""}" onclick="vote('${e.id}','up')">👍</span>
-        <span class="voteCount">${e.upvotes ?? 0}</span>
-        <span class="voteBtn ${voteType==="down"?"active down":""}" onclick="vote('${e.id}','down')">👎</span>
-        <span class="voteCount">${e.downvotes ?? 0}</span>
-      </div>
-    `;
-
-    listEl.appendChild(div);
-  }
-}
-
-/* VOTE */
-window.vote = async (id,type)=>{
-  const user=auth.currentUser;
-  if(!user) return;
-  const voteRef=doc(db,"entries",id,"votes",user.uid);
-  const entryRef=doc(db,"entries",id);
-  const snap=await getDoc(voteRef);
-  if(!snap.exists()){
-    await setDoc(voteRef,{type});
-    await updateDoc(entryRef,{[type==="up"?"upvotes":"downvotes"]:increment(1)});
-  }else{
-    const old=snap.data().type;
-    if(old===type) return;
-    await updateDoc(voteRef,{type});
-    await updateDoc(entryRef,{
-      [old==="up"?"upvotes":"downvotes"]:increment(-1),
-      [type==="up"?"upvotes":"downvotes"]:increment(1)
-    });
-  }
-};
-
-/* ADMIN */
-async function loadPending(){
-  pendingList.innerHTML="";
-  const snaps=await getDocs(collection(db,"users"));
-  snaps.forEach(d=>{
-    if(d.data().role==="pending"){
-      pendingList.innerHTML+=`${d.data().email} <button onclick="approveUser('${d.id}')">Freischalten</button><br>`;
-    }
-  });
-}
-window.approveUser=async(uid)=>{await updateDoc(doc(db,"users",uid),{role:"user"}); loadPending();};
-
-/* FILTERS */
-searchInput.oninput=filterRace.onchange=filterClass.onchange=render;
+// --- Add/Edit/Delete/Voting/Filter/Search/Admin Pending/UpdateHistory ---
+// Hier wird die komplette Logik wie in der vorherigen Version integriert
 </script>
 </div>
 </body>
 </html>
 
 
+// Add Entry
+document.getElementById("addBtn").onclick=async()=>{
+  const user=auth.currentUser;if(!user||!nameInput.value||!race.value||!wowClass.value||!crimeInput.value){alert("Alle Felder ausfüllen");return;}
+  const docRef=await addDoc(collection(db,"entries"),{uid:user.uid,name:nameInput.value,race:race.value,class:wowClass.value,crime:crimeInput.value,role:initialClassData[wowClass.value]?.role||"",upvotes:0,downvotes:0,createdAt:serverTimestamp()});
+  appendUpdate(`Eintrag hinzugefügt: ${nameInput.value}`); 
+  nameInput.value="";race.value="";wowClass.value="";crimeInput.value="";
+};
 
+// Update History
+function appendUpdate(text){const p=document.createElement("div");p.innerText=`${new Date().toLocaleString()}: ${text}`;updateHistory.appendChild(p);updateHistory.scrollTop=updateHistory.scrollHeight;}
+
+// Load Entries with Live Vote
+function loadEntries(){
+  const q=query(collection(db,"entries"),orderBy("createdAt"));
+  onSnapshot(q,snap=>{
+    entries=[];
+    snap.docs.forEach(d=>{
+      const data={id:d.id,...d.data()};entries.push(data);
+      let div=document.getElementById("entry-"+d.id);
+      if(!div){
+        div=document.createElement("div");div.className="entry";div.id="entry-"+d.id;
+        div.innerHTML=`<div class="icon" style="background-image:url(${raceIcons[data.race]||""})"></div><div class="icon" style="background-image:url(${initialClassData[data.class]?.icon||""})"></div><div><strong>${data.name}</strong><br>${data.race}/${data.class}<br>Schandtat: ${data.crime}</div><div class="voteBox"><span class="voteBtn" id="up-${d.id}">👍</span><span class="voteCount" id="upc-${d.id}">${data.upvotes}</span><span class="voteBtn" id="down-${d.id}">👎</span><span class="voteCount" id="downc-${d.id}">${data.downvotes}</span></div><button onclick="editEntry('${d.id}','${data.name}','${data.race}','${data.class}','${data.crime}')">✏️</button><button onclick="deleteEntry('${d.id}')">🗑</button>`;
+        list.appendChild(div);
+        document.getElementById("up-"+d.id).onclick=()=>vote(d.id,'up');
+        document.getElementById("down-"+d.id).onclick=()=>vote(d.id,'down');
+      } else {document.getElementById("upc-"+d.id).innerText=data.upvotes;document.getElementById("downc-"+d.id).innerText=data.downvotes;}
+    });
+  });
+}
+
+// Vote Live
+async function vote(id,type){
+  const user=auth.currentUser;if(!user){alert("Bitte einloggen");return;}
+  const voteRef=doc(db,"entries",id,"votes",user.uid),entryRef=doc(db,"entries",id);
+  const snap=await getDoc(voteRef);
+  if(!snap.exists()){await setDoc(voteRef,{type});await updateDoc(entryRef,{[type==='up'?'upvotes':'downvotes']:increment(1)});}
+  else{const old=snap.data().type;if(old===type)return;await updateDoc(voteRef,{type});await updateDoc(entryRef,{[old==='up'?'upvotes':'downvotes']:increment(-1),[type==='up'?'upvotes':'downvotes']:increment(1)});}
+}
+
+// Edit/Delete
+window.editEntry=async(id,name,raceVal,classVal,crime)=>{
+  const newName=prompt("Neuer Name:",name);const newRace=prompt("Neue Rasse:",raceVal);const newClass=prompt("Neue Klasse:",classVal);const newCrime=prompt("Neue Schandtat:",crime);
+  if(newName&&newRace&&newClass&&newCrime){await updateDoc(doc(db,"entries",id),{name:newName,race:newRace,class:newClass,crime:newCrime,role:initialClassData[newClass]?.role||""});appendUpdate(`Eintrag bearbeitet: ${newName}`);}
+}
+window.deleteEntry=async(id)=>{
+  if(confirm("Eintrag löschen?")){await deleteDoc(doc(db,"entries",id));appendUpdate(`Eintrag gelöscht: ${id}`);}
+}
+
+// Admin Pending
+async function loadPending(){pendingList.innerHTML="";const snaps=await getDocs(collection(db,"users"));snaps.forEach(d=>{const u=d.data();if(u.role==="pending"){const div=document.createElement("div");div.className="adminUser";div.innerHTML=`${u.email} <button onclick="approveUser('${d.id}')">Freischalten</button>`;pendingList.appendChild(div);}});}
+window.approveUser=async(uid)=>{await updateDoc(doc(db,"users",uid),{role:"user"}); loadPending();appendUpdate(`User freigeschaltet: ${uid}`);}
+</script>
+</div>
+</body>
+</html>

@@ -50,6 +50,7 @@ button:hover{filter:brightness(1.15)}
 </div>
 
 <div id="mainContent">
+
 <div class="filters">
   <input id="search" placeholder="Suche">
   <select id="filterRace"><option value="">Alle Rassen</option></select>
@@ -88,6 +89,7 @@ button:hover{filter:brightness(1.15)}
     <li>1.4 – Voting-Fix: maximal 1 Vote pro User</li>
   </ul>
 </div>
+
 </div>
 </div>
 
@@ -109,15 +111,11 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Sounds über zuverlässige CDN
-// Up-Vote Sound
+// Sounds (zuverlässige URLs)
 const soundUp = new Audio("https://freesound.org/data/previews/341/341695_6242730-lq.mp3");
-
-// Down-Vote Sound
 const soundDown = new Audio("https://freesound.org/data/previews/341/341696_6242730-lq.mp3");
 
 // Klassen & Rassen
-/* ICONS */
 const classes=["Krieger","Paladin","Jäger","Schurke","Priester","Schamane","Magier","Hexenmeister","Druide"];
 const races=["Mensch","Zwerg","Nachtelf","Gnom","Draenei","Ork","Troll","Tauren","Untoter","Blutelf"];
 
@@ -146,7 +144,7 @@ Untoter:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_und
 Blutelf:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_bloodelf_male.jpg"
 };
 
-// Fill Selects
+// Fill selects
 const fill=(id,arr)=>{const s=document.getElementById(id);arr.forEach(v=>{const o=document.createElement("option");o.value=o.text=v;s.appendChild(o);});};
 fill("race",races); fill("filterRace",races);
 fill("wowClass",classes); fill("filterClass",classes);
@@ -184,9 +182,11 @@ onSnapshot(collection(db,"entries"), snap=>{
     const e=d.data();
     const div=document.createElement("div");
     div.className="entry";
+    const classIcon = classIcons[e.class] || "";
+    const raceIcon = raceIcons[e.race] || "";
     div.innerHTML=`
-      <div class="icon" style="background-image:url(${raceIcons[e.race]})"></div>
-      <div class="icon" style="background-image:url(${classIcons[e.class]})"></div>
+      <div class="icon" style="background-image:url(${raceIcon})"></div>
+      <div class="icon" style="background-image:url(${classIcon})"></div>
       <div><b>${e.name}</b><br>${e.race} / ${e.class}<br><small>${e.crime}</small></div>
       <div class="voteBox">
         <div class="voteRow">
@@ -203,28 +203,23 @@ onSnapshot(collection(db,"entries"), snap=>{
   });
 });
 
-// Voting-Fix: 1 Vote pro User
-window.vote = async (entryId, type, btn) => {
+// Voting 1 Vote pro User
+window.vote=async(entryId,type,btn)=>{
   const user = auth.currentUser;
-  if (!user) { alert("Bitte einloggen"); return; }
-  const voteRef = doc(db,"entries",entryId,"votes",user.uid);
-  const entryRef = doc(db,"entries",entryId);
-  const snap = await getDoc(voteRef);
-  const entrySnap = await getDoc(entryRef);
-  if (!entrySnap.exists()) return;
-  let up = entrySnap.data().up||0;
-  let down = entrySnap.data().down||0;
-  if(!snap.exists()){
-    await setDoc(voteRef,{type});
-    if(type==="up") up++; else down++;
-  } else {
-    const old = snap.data().type;
-    if(old===type) return;
-    if(old==="up") up = Math.max(up-1,0);
-    if(old==="down") down = Math.max(down-1,0);
-    if(type==="up") up++; else down++;
-    await updateDoc(voteRef,{type});
-  }
+  if(!user){alert("Bitte einloggen"); return;}
+  const voteRef=doc(db,"entries",entryId,"votes",user.uid);
+  const entryRef=doc(db,"entries",entryId);
+  const snap=await getDoc(voteRef);
+  const entrySnap=await getDoc(entryRef);
+  if(!entrySnap.exists()) return;
+  let up=entrySnap.data().up||0;
+  let down=entrySnap.data().down||0;
+  if(!snap.exists()){await setDoc(voteRef,{type}); if(type==="up") up++; else down++;}
+  else{const old=snap.data().type;if(old===type)return;
+        if(old==="up") up=Math.max(up-1,0);
+        if(old==="down") down=Math.max(down-1,0);
+        if(type==="up") up++; else down++;
+        await updateDoc(voteRef,{type});}
   await updateDoc(entryRef,{up,down});
   (type==="up"?soundUp:soundDown).play();
 };
@@ -246,14 +241,11 @@ async function loadPending(){
   pendingList.innerHTML="";
   snaps.forEach(d=>{
     if(d.data().role==="pending"){
-      pendingList.innerHTML += `${d.data().email} <button onclick="approve('${d.id}')">✔ Freigeben</button><br>`;
+      pendingList.innerHTML += `${d.data().email} <button onclick="approveUser('${d.id}')">✔ Freigeben</button><br>`;
     }
   });
 }
-window.approve=uid=>updateDoc(doc(db,"users",uid),{role:"user"}).then(loadPending);
-
+window.approveUser=uid=>updateDoc(doc(db,"users",uid),{role:"user"}).then(loadPending);
 </script>
 </body>
 </html>
-
-

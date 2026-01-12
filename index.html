@@ -197,28 +197,36 @@ async function render(){
   const s=search.value.toLowerCase();
   const fR=filterRace.value;
   const fC=filterClass.value;
+
   for(const e of entries){
     if((fR && e.race!==fR)||(fC && e.class!==fC)||!(e.name+e.race+e.class+e.crime).toLowerCase().includes(s)) continue;
+
     let voteType=null;
     if(user){
-      const vSnap=await getDoc(doc(db,"entries",e.id,"votes",user.uid));
-      if(vSnap.exists()) voteType=vSnap.data().type;
+      try{
+        const vSnap=await getDoc(doc(db,"entries",e.id,"votes",user.uid));
+        if(vSnap.exists()) voteType=vSnap.data().type;
+      }catch(err){voteType=null;}
     }
+
+    const upvotes = e.upvotes ?? 0;
+    const downvotes = e.downvotes ?? 0;
+
     const div=document.createElement("div");
     div.className="entry";
-    div.style.borderLeftColor=initialClassData[e.class].color;
+    div.style.borderLeftColor=initialClassData[e.class]?.color||"#c9a44c";
     div.innerHTML=`
-      <div class="icon" style="background-image:url(${raceIcons[e.race]})"></div>
-      <div class="icon" style="background-image:url(${initialClassData[e.class].icon})"></div>
+      <div class="icon" style="background-image:url(${raceIcons[e.race]||""})"></div>
+      <div class="icon" style="background-image:url(${initialClassData[e.class]?.icon||""})"></div>
       <div>
-        <strong>${e.name}</strong><br>${e.race} / ${e.class}<br>
-        <small>Schandtat: ${e.crime}</small>
+        <strong>${e.name}</strong><br>${e.race||""} / ${e.class||""}<br>
+        <small>Schandtat: ${e.crime||""}</small>
       </div>
       <div class="voteBox">
         <span class="voteBtn ${voteType==="up"?"active up":""}" onclick="vote('${e.id}','up')">👍</span>
-        <span class="voteCount">${e.upvotes||0}</span>
+        <span class="voteCount">${upvotes}</span>
         <span class="voteBtn ${voteType==="down"?"active down":""}" onclick="vote('${e.id}','down')">👎</span>
-        <span class="voteCount">${e.downvotes||0}</span>
+        <span class="voteCount">${downvotes}</span>
       </div>
       <button onclick="editEntry('${e.id}','${e.name}','${e.race}','${e.class}','${e.crime}')">✏️</button>
       <button onclick="deleteEntry('${e.id}')">🗑</button>

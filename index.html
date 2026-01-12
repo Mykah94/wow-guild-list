@@ -19,46 +19,27 @@ input,select{
   padding:10px;background:#120c05;border:2px solid #9c7c3f;color:#f5e6c8;border-radius:6px;font-family:inherit;
 }
 button{
-  font-family: 'Cinzel', serif;
-  font-weight: bold;
-  font-size: 1em;
-  color: #f5e6c8;
-  text-shadow: 1px 1px 0 #000;
-  background: linear-gradient(to bottom, #d6af36 0%, #8a6b2f 100%);
-  border: 2px solid #ffd36a;
-  border-radius: 6px;
-  padding: 10px 16px;
-  cursor: pointer;
-  box-shadow: 0 4px 0 #6b4c21, 0 4px 6px rgba(0,0,0,0.4);
-  transition: all 0.2s ease;
+  font-family: 'Cinzel', serif;font-weight:bold;font-size:1em;color:#f5e6c8;
+  text-shadow:1px 1px 0 #000;
+  background: linear-gradient(to bottom,#d6af36 0%,#8a6b2f 100%);
+  border:2px solid #ffd36a;border-radius:6px;padding:10px 16px;cursor:pointer;
+  box-shadow:0 4px 0 #6b4c21,0 4px 6px rgba(0,0,0,0.4);transition:all 0.2s ease;
 }
-button:hover{
-  background: linear-gradient(to bottom, #ffd36a 0%, #c9a44c 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 0 #6b4c21, 0 6px 8px rgba(0,0,0,0.4);
-}
-button:active{
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 #6b4c21, 0 2px 4px rgba(0,0,0,0.4);
-}
+button:hover{background:linear-gradient(to bottom,#ffd36a 0%,#c9a44c 100%);transform:translateY(-2px);box-shadow:0 6px 0 #6b4c21,0 6px 8px rgba(0,0,0,0.4);}
+button:active{transform:translateY(2px);box-shadow:0 2px 0 #6b4c21,0 2px 4px rgba(0,0,0,0.4);}
 #loginPanel{max-width:400px;margin:20px auto;padding:20px;background:#1a1208;border-radius:12px;text-align:center;}
 .form,.filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;}
 .form-full{width:100%;}
 #crime{flex:1;min-width:100%;}
 .form-buttons{display:flex;justify-content:center;gap:12px;margin-top:10px;}
 .list{margin-top:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:15px;max-height:600px;overflow-y:auto;}
-.entry{
-  display:flex;align-items:center;gap:12px;background:linear-gradient(180deg,#1a1208,#0d0904);
+.entry{display:flex;align-items:center;gap:12px;background:linear-gradient(180deg,#1a1208,#0d0904);
   border:2px solid #8c6a32;border-left:8px solid;border-radius:12px;padding:12px;
-  box-shadow:0 6px 12px rgba(0,0,0,0.7);position:relative;
-}
-.entry-left{
-  display:flex;align-items:center;gap:8px;
-}
-.entry-body{
-  display:flex;flex-direction:column;gap:2px;
-}
+  box-shadow:0 6px 12px rgba(0,0,0,0.7);position:relative;}
+.entry-left{display:flex;align-items:center;gap:8px;}
+.entry-body{display:flex;flex-direction:column;gap:2px;}
 .entry-body strong{font-size:1.1em;}
+.icon{width:44px;height:44px;background-size:cover;background-position:center;border:2px solid #c9a44c;border-radius:4px;}
 .voteBox{display:flex;align-items:center;justify-content:flex-end;gap:6px;position:absolute;top:10px;right:10px;}
 .voteBtn{font-size:22px;cursor:pointer;color:#f5e6c8;text-shadow:1px 1px 0 #000;background:#3e2d0c;border:2px solid #ffd36a;border-radius:6px;padding:2px 6px;transition:all .2s;}
 .voteBtn.active.up{color:#4CAF50;}
@@ -66,27 +47,9 @@ button:active{
 .voteBtn:hover{transform:scale(1.2);}
 .voteCount{min-width:20px;text-align:center;}
 .entry-actions{display:flex;justify-content:flex-end;gap:6px;margin-top:8px;}
-.entry-actions button{
-  font-size:0.8em;
-  padding:4px 8px;
-  border-radius:4px;
-  background: linear-gradient(to bottom,#d6af36 0%,#8a6b2f 100%);
-  border:1px solid #ffd36a;
-  color:#f5e6c8;
-  text-shadow:1px 1px 0 #000;
-  cursor:pointer;
-  box-shadow:0 2px 0 #6b4c21,0 2px 4px rgba(0,0,0,0.4);
-  transition: all 0.2s ease;
-}
-.entry-actions button:hover{
-  background:linear-gradient(to bottom,#ffd36a 0%,#c9a44c 100%);
-  transform:translateY(-1px);
-  box-shadow:0 3px 0 #6b4c21,0 3px 5px rgba(0,0,0,0.4);
-}
-.entry-actions button:active{
-  transform:translateY(1px);
-  box-shadow:0 1px 0 #6b4c21,0 1px 2px rgba(0,0,0,0.4);
-}
+.entry-actions button{font-size:0.8em;padding:4px 8px;border-radius:4px;background:linear-gradient(to bottom,#d6af36 0%,#8a6b2f 100%);border:1px solid #ffd36a;color:#f5e6c8;text-shadow:1px 1px 0 #000;cursor:pointer;box-shadow:0 2px 0 #6b4c21,0 2px 4px rgba(0,0,0,0.4);transition:all .2s ease;}
+.entry-actions button:hover{background:linear-gradient(to bottom,#ffd36a 0%,#c9a44c 100%);transform:translateY(-1px);box-shadow:0 3px 0 #6b4c21,0 3px 5px rgba(0,0,0,0.4);}
+.entry-actions button:active{transform:translateY(1px);box-shadow:0 1px 0 #6b4c21,0 1px 2px rgba(0,0,0,0.4);}
 #adminPanel{margin-top:20px;background:#1a1208;padding:10px;border-radius:8px;border:2px solid #8c6a32;display:none;}
 .adminUser{display:flex;justify-content:space-between;margin-bottom:6px;}
 .adminUser button{padding:2px 6px;font-size:0.8em;}
@@ -142,12 +105,7 @@ button:active{
 </div>
 
 <script type="module">
-// --- JS-Code hier: Firebase Auth, Firestore, Add/Edit/Delete, Voting Live, Filter/Search, Admin Pending, Update History ---
-// Render-Funktion benutzt jetzt:
-// <div class="icon" style="background-image:url(${raceIcons[e.race]||'https://via.placeholder.com/44'})"></div>
-// <div class="icon" style="background-image:url(${initialClassData[e.class]?.icon||'https://via.placeholder.com/44'})"></div>
-// --- JS: Firebase Init, Auth, Firestore, Add/Edit/Delete, Voting, Filter/Search, Admin Pending, Update History ---
-
+// --- Hier kommt der komplette JS-Code für Auth, Firestore, Voting, Filter/Search, Admin Pending, Update History ---
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, getDocs, updateDoc, deleteDoc, setDoc, increment } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
@@ -276,6 +234,7 @@ window.approveUser=async(uid)=>{await updateDoc(doc(db,"users",uid),{role:"user"
 </div>
 </body>
 </html>
+
 
 
 

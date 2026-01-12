@@ -422,3 +422,254 @@ const firebaseConfig = {
   apiKey:"AIzaSyBOko8Wg-jCvz7aRPleNcbJCm8u2CYtjps",
   authDomain:"wow-hs-liste.firebaseapp.com",
   projectId:"wow-hs-liste",
+  apiKey:"AIzaSyBOko8Wg-jCvz7aRPleNcbJCm8u2CYtjps",
+  authDomain:"wow-hs-liste.firebaseapp.com",
+  projectId:"wow-hs-liste",
+  storageBucket:"wow-hs-liste.appspot.com",
+  messagingSenderId:"180764359810",
+  appId:"1:180764359810:web:03cef19546dcc32081889b"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+const initialClassData = {
+  Krieger:{color:"#C79C6E",icon:"https://wow.zamimg.com/images/wow/icons/large/class_warrior.jpg"},
+  Magier:{color:"#69CCF0",icon:"https://wow.zamimg.com/images/wow/icons/large/class_mage.jpg"},
+  Priester:{color:"#FFFFFF",icon:"https://wow.zamimg.com/images/wow/icons/large/class_priest.jpg"},
+  Schurke:{color:"#FFF569",icon:"https://wow.zamimg.com/images/wow/icons/large/class_rogue.jpg"},
+  Jäger:{color:"#ABD473",icon:"https://wow.zamimg.com/images/wow/icons/large/class_hunter.jpg"},
+  Hexenmeister:{color:"#9482C9",icon:"https://wow.zamimg.com/images/wow/icons/large/class_warlock.jpg"},
+  Druide:{color:"#FF7D0A",icon:"https://wow.zamimg.com/images/wow/icons/large/class_druid.jpg"},
+  Paladin:{color:"#F58CBA",icon:"https://wow.zamimg.com/images/wow/icons/large/class_paladin.jpg"},
+  Schamane:{color:"#0070DE",icon:"https://wow.zamimg.com/images/wow/icons/large/class_shaman.jpg"}
+};
+const raceIcons = {
+  Mensch:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_human_male.jpg",
+  Zwerg:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_dwarf_male.jpg",
+  Nachtelf:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_nightelf_male.jpg",
+  Gnom:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_gnome_male.jpg",
+  Draenei:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_draenei_male.jpg",
+  Ork:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_orc_male.jpg",
+  Troll:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_troll_male.jpg",
+  Tauren:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_tauren_male.jpg",
+  Untoter:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_undead_male.jpg",
+  Blutelf:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_bloodelf_male.jpg"
+};
+
+const email        = document.getElementById("email");
+const password     = document.getElementById("password");
+const loginPanel   = document.getElementById("loginPanel");
+const mainContent  = document.getElementById("mainContent");
+const list         = document.getElementById("list");
+const nameInput    = document.getElementById("name");
+const race         = document.getElementById("race");
+const wowClass     = document.getElementById("wowClass");
+const crimeInput   = document.getElementById("crime");
+const adminPanel   = document.getElementById("adminPanel");
+const pendingList  = document.getElementById("pendingList");
+const updateHistory= document.getElementById("updateHistory");
+const searchInput  = document.getElementById("search");
+const filterRace   = document.getElementById("filterRace");
+const filterClass  = document.getElementById("filterClass");
+
+let entries = [];
+
+document.getElementById("registerBtn").onclick = async () => {
+  try{
+    const cred = await createUserWithEmailAndPassword(auth,email.value,password.value);
+    await setDoc(doc(db,"users",cred.user.uid),{email:email.value,role:"pending"});
+    alert("Registriert – Der Großverwalter muss dich freischalten!");
+    signOut(auth);
+  }catch(e){
+    alert("Fehler: "+e.message);
+  }
+};
+document.getElementById("loginBtn").onclick  = () =>
+  signInWithEmailAndPassword(auth,email.value,password.value).catch(e=>alert(e.message));
+document.getElementById("logoutBtn").onclick = () => signOut(auth);
+
+onAuthStateChanged(auth, async user => {
+  if(!user){
+    loginPanel.style.display="block";
+    mainContent.style.display="none";
+    return;
+  }
+  const snap = await getDoc(doc(db,"users",user.uid));
+  if(!snap.exists() || snap.data().role==="pending"){
+    alert("Noch nicht vom Großverwalter freigeschaltet!");
+    signOut(auth);
+    return;
+  }
+  loginPanel.style.display="none";
+  mainContent.style.display="block";
+  if(snap.data().role==="admin"){
+    adminPanel.style.display="block";
+    loadPending();
+  }else adminPanel.style.display="none";
+  loadEntries();
+});
+
+document.getElementById("addBtn").onclick = async () => {
+  const user = auth.currentUser;
+  if(!user || !nameInput.value || !race.value || !wowClass.value || !crimeInput.value){
+    alert("Alle Felder ausfüllen, Schandtat!");
+    return;
+  }
+  await addDoc(collection(db,"entries"),{
+    uid:user.uid,
+    name:nameInput.value,
+    race:race.value,
+    class:wowClass.value,
+    crime:crimeInput.value,
+    role:initialClassData[wowClass.value]?.role || "",
+    upvotes:0,
+    downvotes:0,
+    createdAt:serverTimestamp()
+  });
+  appendUpdate(`Schandtat gemeldet: ${nameInput.value}`);
+  nameInput.value=""; race.value=""; wowClass.value=""; crimeInput.value="";
+};
+
+function appendUpdate(text){
+  const p=document.createElement("div");
+  p.innerText=`${new Date().toLocaleString()}: ${text}`;
+  updateHistory.appendChild(p);
+  updateHistory.scrollTop=updateHistory.scrollHeight;
+}
+
+function loadEntries(){
+  const q=query(collection(db,"entries"),orderBy("createdAt"));
+  onSnapshot(q,snap=>{
+    entries = snap.docs.map(d => ({id:d.id, ...d.data()}));
+    renderEntries();
+  });
+}
+
+function renderEntries(){
+  list.innerHTML="";
+  const term = (searchInput.value || "").toLowerCase();
+  const fr   = filterRace.value;
+  const fc   = filterClass.value;
+
+  entries
+    .filter(e =>
+      (!fr || e.race===fr) &&
+      (!fc || e.class===fc) &&
+      (!term ||
+        e.name.toLowerCase().includes(term) ||
+        e.crime.toLowerCase().includes(term))
+    )
+    .forEach(data => {
+      const div=document.createElement("div");
+      div.className="entry";
+      div.id="entry-"+data.id;
+      div.style.borderLeftColor = initialClassData[data.class]?.color || "#8c6a32";
+
+      div.innerHTML = `
+        <div class="entry-top">
+          <div class="icon-row">
+            <div class="icon" style="background-image:url('${raceIcons[data.race] || ''}')"></div>
+            <div class="icon" style="background-image:url('${initialClassData[data.class]?.icon || ''}')"></div>
+          </div>
+          <div class="entry-body">
+            <div class="entry-name">${data.name}</div>
+            <div class="entry-info">${data.race} / ${data.class}</div>
+            <div class="entry-crime">Schandtat: ${data.crime}</div>
+          </div>
+          <div class="voteBox">
+            <span class="voteBtn" id="up-${data.id}">👍</span>
+            <span class="voteCount" id="upc-${data.id}">${data.upvotes}</span>
+            <span class="voteBtn" id="down-${data.id}">👎</span>
+            <span class="voteCount" id="downc-${data.id}">${data.downvotes}</span>
+          </div>
+        </div>
+        <div class="entry-actions">
+          <button id="edit-${data.id}" class="btn-action" title="Bearbeiten">✏️</button>
+          <button id="del-${data.id}" class="btn-action" title="Löschen">🗑</button>
+        </div>
+      `;
+
+      list.appendChild(div);
+
+      document.getElementById("up-"+data.id).onclick   = () => vote(data.id,"up");
+      document.getElementById("down-"+data.id).onclick = () => vote(data.id,"down");
+      document.getElementById("edit-"+data.id).onclick =
+        () => editEntry(data.id,data.name,data.race,data.class,data.crime);
+      document.getElementById("del-"+data.id).onclick  =
+        () => deleteEntry(data.id);
+    });
+}
+
+searchInput.addEventListener("input",renderEntries);
+filterRace.addEventListener("change",renderEntries);
+filterClass.addEventListener("change",renderEntries);
+
+async function vote(id,type){
+  const user=auth.currentUser;
+  if(!user){alert("Tritt der Allianz/Horde bei! (Login)");return;}
+  const voteRef = doc(db,"entries",id,"votes",user.uid);
+  const entryRef= doc(db,"entries",id);
+  const snap    = await getDoc(voteRef);
+
+  if(!snap.exists()){
+    await setDoc(voteRef,{type});
+    await updateDoc(entryRef,{
+      [type==='up'?'upvotes':'downvotes']:increment(1)
+    });
+  }else{
+    const old=snap.data().type;
+    if(old===type)return;
+    await updateDoc(voteRef,{type});
+    await updateDoc(entryRef,{
+      [old==='up'?'upvotes':'downvotes']:increment(-1),
+      [type==='up'?'upvotes':'downvotes']:increment(1)
+    });
+  }
+}
+
+async function editEntry(id,name,raceVal,classVal,crime){
+  const newName  = prompt("Neuer Name:",name);
+  const newRace  = prompt("Neue Rasse:",raceVal);
+  const newClass = prompt("Neue Klasse:",classVal);
+  const newCrime = prompt("Neue Schandtat:",crime);
+  if(newName && newRace && newClass && newCrime){
+    await updateDoc(doc(db,"entries",id),{
+      name:newName,
+      race:newRace,
+      class:newClass,
+      crime:newCrime,
+      role:initialClassData[newClass]?.role || ""
+    });
+    appendUpdate(`Schandtat geändert: ${newName}`);
+  }
+}
+async function deleteEntry(id){
+  if(confirm("Diese Schandtat aus dem Archiv tilgen?")){
+    await deleteDoc(doc(db,"entries",id));
+    appendUpdate(`Schandtat gelöscht: ${id}`);
+  }
+}
+
+async function loadPending(){
+  pendingList.innerHTML="";
+  const snaps=await getDocs(collection(db,"users"));
+  snaps.forEach(d=>{
+    const u=d.data();
+    if(u.role==="pending"){
+      const div=document.createElement("div");
+      div.className="adminUser";
+      div.innerHTML=`${u.email} <button class="btn-small">Freischalten</button>`;
+      pendingList.appendChild(div);
+      div.querySelector("button").onclick = () => approveUser(d.id);
+    }
+  });
+}
+async function approveUser(uid){
+  await updateDoc(doc(db,"users",uid),{role:"user"});
+  loadPending();
+  appendUpdate(`Kämpfer freigeschaltet: ${uid}`);
+}
+</script>
+</body>
+</html>

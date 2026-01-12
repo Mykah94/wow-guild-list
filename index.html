@@ -6,35 +6,35 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
 <style>
 html,body{
-  margin:0; font-family:'Cinzel',serif;
+  margin:0;font-family:'Cinzel',serif;
   background:
     linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.85)),
     url("https://blz-contentstack-images.akamaized.net/v3/assets/bltf408a0557f4e4998/blt6a80c8e7260f84f2/690d2219b415dd246153245b/BCC.png");
-  background-size:cover; background-attachment:fixed; color:#f5e6c8;
+  background-size:cover;background-attachment:fixed;color:#f5e6c8;
 }
 .container{
-  max-width:1350px; margin:40px auto; padding:30px;
-  background:rgba(15,10,5,.92); border:6px solid #c9a44c; border-radius:16px; box-shadow:0 0 40px #000;
+  max-width:1350px;margin:40px auto;padding:30px;
+  background:rgba(15,10,5,.92);border:6px solid #c9a44c;border-radius:16px;box-shadow:0 0 40px #000;
 }
-h1{text-align:center;color:#ffd36a}
-input,select,button{padding:10px;background:#120c05;border:2px solid #9c7c3f;color:#f5e6c8;border-radius:6px;font-family:inherit}
-button{cursor:pointer;background:linear-gradient(#e7c26a,#8a6b2f);color:#1b1206;font-weight:bold}
-button:hover{filter:brightness(1.15)}
-#loginPanel{max-width:400px;margin:40px auto;background:#1a1208;padding:20px;border-radius:14px;box-shadow:0 0 25px #000}
-#mainContent{display:none}
-.filters,.form{display:flex;gap:10px;flex-wrap:wrap}
-.form-full{margin-top:10px}
-#crime{width:100%}
+h1{text-align:center;color:#ffd36a;}
+input,select,button{padding:10px;background:#120c05;border:2px solid #9c7c3f;color:#f5e6c8;border-radius:6px;font-family:inherit;}
+button{cursor:pointer;background:linear-gradient(#e7c26a,#8a6b2f);color:#1b1206;font-weight:bold;}
+button:hover{filter:brightness(1.15);}
+#loginPanel{max-width:400px;margin:40px auto;background:#1a1208;padding:20px;border-radius:14px;box-shadow:0 0 25px #000;}
+#mainContent{display:none;}
+.filters,.form{display:flex;gap:10px;flex-wrap:wrap;}
+.form-full{margin-top:10px;}
+#crime{width:100%;}
 .entry{display:grid;grid-template-columns:44px 44px 1fr 180px;gap:12px;align-items:center;padding:12px;margin-bottom:12px;background:linear-gradient(#1a1208,#0d0904);border:2px solid #8c6a32;border-left:8px solid;border-radius:10px;}
 .icon{width:40px;height:40px;background-size:cover;background-position:center;border:2px solid #c9a44c;border-radius:4px;}
-.voteBox{display:flex;flex-direction:column;gap:4px}
-.voteRow{display:flex;gap:6px;align-items:center}
-.editRow{display:flex;gap:6px;margin-top:4px}
-.editRow button{font-size:12px;padding:3px 6px}
-.voteBtn{cursor:pointer;font-size:20px;opacity:.4;transition:.15s}
-.voteBtn:hover{transform:scale(1.25);opacity:1}
-.voteBtn.active.up{color:#4CAF50;opacity:1}
-.voteBtn.active.down{color:#E53935;opacity:1}
+.voteBox{display:flex;flex-direction:column;gap:4px;}
+.voteRow{display:flex;gap:6px;align-items:center;}
+.editRow{display:flex;gap:6px;margin-top:4px;}
+.editRow button{font-size:12px;padding:3px 6px;}
+.voteBtn{cursor:pointer;font-size:20px;opacity:.4;transition:.15s;}
+.voteBtn:hover{transform:scale(1.25);opacity:1;}
+.voteBtn.active.up{color:#4CAF50;opacity:1;}
+.voteBtn.active.down{color:#E53935;opacity:1;}
 #adminPanel,#historyPanel{margin-top:20px;padding:10px;background:#1a1208;border:2px solid #8c6a32;border-radius:10px;}
 </style>
 </head>
@@ -42,6 +42,7 @@ button:hover{filter:brightness(1.15)}
 <div class="container">
 <h1>WoW Classic / TBC – Schandtatenliste</h1>
 
+<!-- LOGIN PANEL -->
 <div id="loginPanel">
   <input id="email" placeholder="Email"><br><br>
   <input id="password" type="password" placeholder="Passwort"><br><br>
@@ -49,6 +50,7 @@ button:hover{filter:brightness(1.15)}
   <button id="registerBtn">Registrieren</button>
 </div>
 
+<!-- MAIN CONTENT -->
 <div id="mainContent">
 
 <div class="filters">
@@ -98,7 +100,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebas
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc, getDoc, updateDoc, increment, serverTimestamp, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-// Firebase config
+// --- Firebase config ---
 const firebaseConfig={
   apiKey:"AIzaSyBOko8Wg-jCvz7aRPleNcbJCm8u2CYtjps",
   authDomain:"wow-hs-liste.firebaseapp.com",
@@ -111,11 +113,11 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Sounds (zuverlässige URLs)
-const soundUp = new Audio("https://github.com/Mykah94/wow-guild-list/blob/main/thrall-hall-wow.mp3");
-const soundDown = new Audio("https://github.com/Mykah94/wow-guild-list/blob/main/murloc.mp3");
+// --- Sounds ---
+const soundUp = new Audio("https://freesound.org/data/previews/341/341695_6242730-lq.mp3");
+const soundDown = new Audio("https://freesound.org/data/previews/341/341696_6242730-lq.mp3");
 
-// Klassen & Rassen
+// --- Klassen & Rassen ---
 const classes=["Krieger","Paladin","Jäger","Schurke","Priester","Schamane","Magier","Hexenmeister","Druide"];
 const races=["Mensch","Zwerg","Nachtelf","Gnom","Draenei","Ork","Troll","Tauren","Untoter","Blutelf"];
 
@@ -144,12 +146,12 @@ Untoter:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_und
 Blutelf:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_bloodelf_male.jpg"
 };
 
-// Fill selects
+// --- Fill Selects ---
 const fill=(id,arr)=>{const s=document.getElementById(id);arr.forEach(v=>{const o=document.createElement("option");o.value=o.text=v;s.appendChild(o);});};
 fill("race",races); fill("filterRace",races);
 fill("wowClass",classes); fill("filterClass",classes);
 
-// Auth
+// --- Auth ---
 loginBtn.onclick=()=>signInWithEmailAndPassword(auth,email.value,password.value);
 registerBtn.onclick=async()=>{
   const c = await createUserWithEmailAndPassword(auth,email.value,password.value);
@@ -158,6 +160,7 @@ registerBtn.onclick=async()=>{
 };
 logoutBtn.onclick=()=>signOut(auth);
 
+// --- Auth-State ---
 onAuthStateChanged(auth, async user=>{
   if(!user){loginPanel.style.display="block"; mainContent.style.display="none"; return;}
   const snap = await getDoc(doc(db,"users",user.uid));
@@ -166,32 +169,33 @@ onAuthStateChanged(auth, async user=>{
   if(snap.data().role==="admin") loadPending();
 });
 
-// Add Entry
+// --- Add Entry ---
 addBtn.onclick=()=>{
-  if(!name.value||!race.value||!wowClass.value||!crime.value){alert("Alle Felder ausfüllen"); return;}
+  if(!name.value||!race.value||!wowClass.value||!crime.value){alert("Bitte alle Felder ausfüllen"); return;}
   addDoc(collection(db,"entries"),{
+    uid: auth.currentUser.uid,
     name:name.value, race:race.value, class:wowClass.value, crime:crime.value,
     up:0, down:0, createdAt:serverTimestamp()
   });
 };
 
-// Live Entries
+// --- Load Entries live ---
 onSnapshot(collection(db,"entries"), snap=>{
   list.innerHTML="";
   snap.forEach(d=>{
     const e=d.data();
     const div=document.createElement("div");
     div.className="entry";
-    const classIcon = classIcons[e.class] || "";
-    const raceIcon = raceIcons[e.race] || "";
+    const classIcon = classIcons[e.class]||"";
+    const raceIcon = raceIcons[e.race]||"";
     div.innerHTML=`
       <div class="icon" style="background-image:url(${raceIcon})"></div>
       <div class="icon" style="background-image:url(${classIcon})"></div>
       <div><b>${e.name}</b><br>${e.race} / ${e.class}<br><small>${e.crime}</small></div>
       <div class="voteBox">
         <div class="voteRow">
-          <span class="voteBtn" onclick="vote('${d.id}','up', this)">👍 ${e.up||0}</span>
-          <span class="voteBtn" onclick="vote('${d.id}','down', this)">👎 ${e.down||0}</span>
+          <span class="voteBtn" onclick="vote('${d.id}','up')">👍 ${e.up||0}</span>
+          <span class="voteBtn" onclick="vote('${d.id}','down')">👎 ${e.down||0}</span>
         </div>
         <div class="editRow">
           <button onclick="editEntry('${d.id}','${e.name}','${e.race}','${e.class}','${e.crime}')">✏️ Bearbeiten</button>
@@ -203,9 +207,9 @@ onSnapshot(collection(db,"entries"), snap=>{
   });
 });
 
-// Voting 1 Vote pro User
-window.vote=async(entryId,type,btn)=>{
-  const user = auth.currentUser;
+// --- Voting ---
+window.vote=async(entryId,type)=>{
+  const user=auth.currentUser;
   if(!user){alert("Bitte einloggen"); return;}
   const voteRef=doc(db,"entries",entryId,"votes",user.uid);
   const entryRef=doc(db,"entries",entryId);
@@ -216,28 +220,26 @@ window.vote=async(entryId,type,btn)=>{
   let down=entrySnap.data().down||0;
   if(!snap.exists()){await setDoc(voteRef,{type}); if(type==="up") up++; else down++;}
   else{const old=snap.data().type;if(old===type)return;
-        if(old==="up") up=Math.max(up-1,0);
-        if(old==="down") down=Math.max(down-1,0);
+        if(old==="up") up=Math.max(up-1,0); if(old==="down") down=Math.max(down-1,0);
         if(type==="up") up++; else down++;
         await updateDoc(voteRef,{type});}
   await updateDoc(entryRef,{up,down});
   (type==="up"?soundUp:soundDown).play();
 };
 
-// Edit/Delete
+// --- Edit/Delete ---
 window.editEntry=async(id,name,raceVal,classVal,crime)=>{
   const newName=prompt("Neuer Name:",name);
   const newRace=prompt("Neue Rasse:",raceVal);
   const newClass=prompt("Neue Klasse:",classVal);
   const newCrime=prompt("Neue Schandtat:",crime);
-  if(newName && newRace && newClass && newCrime)
-    await updateDoc(doc(db,"entries",id),{name:newName,race:newRace,class:newClass,crime:newCrime});
+  if(newName&&newRace&&newClass&&newCrime) await updateDoc(doc(db,"entries",id),{name:newName,race:newRace,class:newClass,crime:newCrime});
 };
 window.deleteEntry=async(id)=>{if(confirm("Eintrag löschen?")) await deleteDoc(doc(db,"entries",id));};
 
-// Admin Pending
+// --- Admin Pending ---
 async function loadPending(){
-  const snaps = await getDocs(collection(db,"users"));
+  const snaps=await getDocs(collection(db,"users"));
   pendingList.innerHTML="";
   snaps.forEach(d=>{
     if(d.data().role==="pending"){
@@ -249,4 +251,3 @@ window.approveUser=uid=>updateDoc(doc(db,"users",uid),{role:"user"}).then(loadPe
 </script>
 </body>
 </html>
-

@@ -88,6 +88,7 @@ button:hover{filter:brightness(1.15)}
     <li>1.1 – Live Voting + Sounds</li>
     <li>1.2 – Admin Panel</li>
     <li>1.3 – TBC Hintergrund + Tooltips</li>
+    <li>1.4 – Voting-Fix: maximal 1 Vote pro User</li>
   </ul>
 </div>
 
@@ -97,8 +98,9 @@ button:hover{filter:brightness(1.15)}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc, getDoc, updateDoc, increment, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc, getDoc, updateDoc, increment, serverTimestamp, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
+// --- Firebase
 const firebaseConfig={
   apiKey:"AIzaSyBOko8Wg-jCvz7aRPleNcbJCm8u2CYtjps",
   authDomain:"wow-hs-liste.firebaseapp.com",
@@ -107,16 +109,15 @@ const firebaseConfig={
   messagingSenderId:"180764359810",
   appId:"1:180764359810:web:03cef19546dcc32081889b"
 };
-
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Sounds
+// --- Sounds
 const soundUp = new Audio("https://www.myinstants.com/media/sounds/wow-level-up.mp3");
 const soundDown = new Audio("https://www.myinstants.com/media/sounds/wow-fail.mp3");
 
-// Klassen & Rassen
+// --- Klassen & Rassen
 const classes=["Krieger","Paladin","Jäger","Schurke","Priester","Schamane","Magier","Hexenmeister","Druide"];
 const races=["Mensch","Zwerg","Nachtelf","Gnom","Draenei","Ork","Troll","Tauren","Untoter","Blutelf"];
 
@@ -131,7 +132,6 @@ const classIcons={
   Hexenmeister:"https://wow.zamimg.com/images/wow/icons/large/class_warlock.jpg",
   Druide:"https://wow.zamimg.com/images/wow/icons/large/class_druid.jpg"
 };
-
 const raceIcons={
   Mensch:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_human_male.jpg",
   Zwerg:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_dwarf_male.jpg",
@@ -145,12 +145,12 @@ const raceIcons={
   Blutelf:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_bloodelf_male.jpg"
 };
 
-// Fill selects
+// --- Fill Selects
 const fill=(id,arr)=>{const s=document.getElementById(id);arr.forEach(v=>{const o=document.createElement("option");o.value=o.text=v;s.appendChild(o);});};
 fill("race",races); fill("filterRace",races);
 fill("wowClass",classes); fill("filterClass",classes);
 
-// Auth
+// --- Auth
 loginBtn.onclick=()=>signInWithEmailAndPassword(auth,email.value,password.value);
 registerBtn.onclick=async()=>{
   const c = await createUserWithEmailAndPassword(auth,email.value,password.value);
@@ -160,66 +160,77 @@ registerBtn.onclick=async()=>{
 logoutBtn.onclick=()=>signOut(auth);
 
 onAuthStateChanged(auth, async user=>{
- if(!user){loginPanel.style.display="block"; mainContent.style.display="none"; return;}
- const snap = await getDoc(doc(db,"users",user.uid));
- if(!snap.exists() || snap.data().role==="pending"){alert("Noch nicht freigeschaltet"); signOut(auth); return;}
- loginPanel.style.display="none"; mainContent.style.display="block";
- if(snap.data().role==="admin") loadPending();
+  if(!user){loginPanel.style.display="block"; mainContent.style.display="none"; return;}
+  const snap = await getDoc(doc(db,"users",user.uid));
+  if(!snap.exists() || snap.data().role==="pending"){alert("Noch nicht freigeschaltet"); signOut(auth); return;}
+  loginPanel.style.display="none"; mainContent.style.display="block";
+  if(snap.data().role==="admin") loadPending();
 });
 
-// Add Entry
+// --- Add Entry
 addBtn.onclick=()=>addDoc(collection(db,"entries"),{
   name:name.value, race:race.value, class:wowClass.value, crime:crime.value,
   up:0, down:0, createdAt:serverTimestamp()
 });
 
-// Live Entries
+// --- Live Entries
 onSnapshot(collection(db,"entries"), snap=>{
- list.innerHTML="";
- snap.forEach(d=>{
-   const e=d.data();
-   const div=document.createElement("div");
-   div.className="entry";
-   div.innerHTML=`
-     <div class="icon" style="background-image:url(${raceIcons[e.race]})"></div>
-     <div class="icon" style="background-image:url(${classIcons[e.class]})"></div>
-     <div><b>${e.name}</b><br>${e.race} / ${e.class}<br><small>${e.crime}</small></div>
-     <div class="voteBox">
-       <div class="voteRow">
-         <span class="voteBtn" onclick="vote('${d.id}','up', this)">👍 ${e.up||0}</span>
-         <span class="voteBtn" onclick="vote('${d.id}','down', this)">👎 ${e.down||0}</span>
-       </div>
-       <div class="editRow">
-         <button onclick="editEntry('${d.id}','${e.name}','${e.race}','${e.class}','${e.crime}')">✏️ Bearbeiten</button>
-         <button onclick="deleteEntry('${d.id}')">🗑 Löschen</button>
-       </div>
-     </div>
-   `;
-   list.appendChild(div);
- });
+  list.innerHTML="";
+  snap.forEach(d=>{
+    const e=d.data();
+    const div=document.createElement("div");
+    div.className="entry";
+    div.innerHTML=`
+      <div class="icon" style="background-image:url(${raceIcons[e.race]})"></div>
+      <div class="icon" style="background-image:url(${classIcons[e.class]})"></div>
+      <div><b>${e.name}</b><br>${e.race} / ${e.class}<br><small>${e.crime}</small></div>
+      <div class="voteBox">
+        <div class="voteRow">
+          <span class="voteBtn" onclick="vote('${d.id}','up', this)">👍 ${e.up||0}</span>
+          <span class="voteBtn" onclick="vote('${d.id}','down', this)">👎 ${e.down||0}</span>
+        </div>
+        <div class="editRow">
+          <button onclick="editEntry('${d.id}','${e.name}','${e.race}','${e.class}','${e.crime}')">✏️ Bearbeiten</button>
+          <button onclick="deleteEntry('${d.id}')">🗑 Löschen</button>
+        </div>
+      </div>
+    `;
+    list.appendChild(div);
+  });
 });
 
-// Voting
-window.vote=async(id,type,btn)=>{
+// --- Voting (1 Vote pro User, keine negativen Zähler)
+window.vote = async (entryId, type, btn) => {
   const user = auth.currentUser;
-  if(!user){alert("Bitte einloggen"); return;}
-  const voteRef = doc(db,"entries",id,"votes",user.uid);
-  const entryRef = doc(db,"entries",id);
-  const s = await getDoc(voteRef);
-  if(!s.exists()){
-    await setDoc(voteRef,{type});
-    await updateDoc(entryRef,{[type]:increment(1)});
-    (type==="up"?soundUp:soundDown).play();
+  if (!user) { alert("Bitte einloggen"); return; }
+
+  const voteRef = doc(db, "entries", entryId, "votes", user.uid);
+  const entryRef = doc(db, "entries", entryId);
+  const snap = await getDoc(voteRef);
+  const entrySnap = await getDoc(entryRef);
+
+  if (!entrySnap.exists()) return;
+
+  let up = entrySnap.data().up || 0;
+  let down = entrySnap.data().down || 0;
+
+  if (!snap.exists()) {
+    await setDoc(voteRef, { type });
+    if (type === "up") up++; else down++;
   } else {
-    const old = s.data().type;
-    if(old===type) return;
-    await updateDoc(voteRef,{type});
-    await updateDoc(entryRef,{[old]:increment(-1),[type]:increment(1)});
-    (type==="up"?soundUp:soundDown).play();
+    const old = snap.data().type;
+    if (old === type) return;
+    if (old === "up") up = Math.max(up - 1, 0);
+    if (old === "down") down = Math.max(down - 1, 0);
+    if (type === "up") up++; else down++;
+    await updateDoc(voteRef, { type });
   }
+
+  await updateDoc(entryRef, { up, down });
+  (type === "up" ? soundUp : soundDown).play();
 };
 
-// Edit / Delete
+// --- Edit/Delete
 window.editEntry=async(id,name,raceVal,classVal,crime)=>{
   const newName=prompt("Neuer Name:",name);
   const newRace=prompt("Neue Rasse:",raceVal);
@@ -231,7 +242,7 @@ window.editEntry=async(id,name,raceVal,classVal,crime)=>{
 };
 window.deleteEntry=async(id)=>{if(confirm("Eintrag löschen?")) await deleteDoc(doc(db,"entries",id));};
 
-// Admin Panel
+// --- Admin Pending
 async function loadPending(){
   const snaps = await getDocs(collection(db,"users"));
   pendingList.innerHTML="";

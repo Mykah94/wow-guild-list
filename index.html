@@ -6,103 +6,255 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
 <style>
 body{
-  margin:0;font-family:'Cinzel',serif;color:#f5e6c8;
+  margin:0;
+  font-family:'Cinzel',serif;
+  color:#f5e6c8;
   background:url('https://i.imgur.com/7LzGxKb.jpg') no-repeat center center fixed;
   background-size:cover;
 }
 .container{
-  max-width:1400px;margin:20px auto;padding:20px;background:rgba(10,7,3,0.85);
-  border:6px solid #c9a44c;border-radius:14px;
+  max-width:1400px;
+  margin:20px auto;
+  padding:20px;
+  background:rgba(10,7,3,0.85);
+  border:6px solid #c9a44c;
+  border-radius:14px;
 }
-h1{text-align:center;color:#ffd36a;margin-bottom:20px;}
+h1{
+  text-align:center;
+  color:#ffd36a;
+  margin-bottom:20px;
+}
 input,select,button{
-  padding:10px;background:#120c05;border:2px solid #9c7c3f;color:#f5e6c8;border-radius:6px;font-family:inherit;
+  padding:8px;
+  background:#120c05;
+  border:2px solid #9c7c3f;
+  color:#f5e6c8;
+  border-radius:6px;
+  font-family:inherit;
+  font-size:12px;
 }
-button{cursor:pointer;background:linear-gradient(to bottom,#e0b75a,#8a6b2f);color:#1b1206;font-weight:bold;}
-#loginPanel{max-width:400px;margin:20px auto;padding:20px;background:#1a1208;border-radius:12px;text-align:center;}
-.form,.filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;}
+button{
+  cursor:pointer;
+  background:linear-gradient(to bottom,#e0b75a,#8a6b2f);
+  color:#1b1206;
+  font-weight:bold;
+  padding:4px 8px;
+  font-size:11px;
+  border-radius:4px;
+}
+#loginPanel{
+  max-width:400px;
+  margin:20px auto;
+  padding:20px;
+  background:#1a1208;
+  border-radius:12px;
+  text-align:center;
+}
+.form,.filters{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:10px;
+}
 .form-full{width:100%;}
 #crime{flex:1;min-width:100%;}
-.form-buttons{display:flex;justify-content:center;gap:12px;margin-top:10px;}
-.list{margin-top:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:15px;max-height:600px;overflow-y:auto;}
-.entry{
-  display:flex;flex-direction:column;background:linear-gradient(180deg,#1a1208,#0d0904);
-  border:2px solid #8c6a32;border-left:8px solid;border-radius:12px;padding:12px;
-  box-shadow:0 6px 12px rgba(0,0,0,0.7);transition:transform 0.2s,box-shadow 0.2s;position:relative;
+.form-buttons{
+  display:flex;
+  justify-content:center;
+  gap:12px;
+  margin-top:10px;
 }
-.entry:hover{transform:translateY(-4px);box-shadow:0 12px 24px rgba(0,0,0,0.9);}
-.entry-top{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
-.icon{width:44px;height:44px;background-size:cover;background-position:center;border:2px solid #c9a44c;border-radius:6px;}
-.entry-body{flex:1;color:#f5e6c8;}
-.entry-body strong{font-size:1.1em;}
-.voteBox{display:flex;align-items:center;justify-content:flex-end;gap:6px;position:absolute;top:10px;right:10px;}
-.voteBtn{font-size:20px;cursor:pointer;opacity:0.5;transition:transform .1s,opacity .1s;}
-.voteBtn:hover{transform:scale(1.2);opacity:1;}
+#list{
+  margin-top:20px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
+  gap:15px;
+  max-height:600px;
+  overflow-y:auto;
+}
+.entry{
+  display:flex;
+  flex-direction:column;
+  background:linear-gradient(180deg,#1a1208,#0d0904);
+  border:2px solid #8c6a32;
+  border-left:8px solid;
+  border-radius:12px;
+  padding:8px;
+  box-shadow:0 6px 12px rgba(0,0,0,0.7);
+  position:relative;
+  transition:transform 0.2s,box-shadow 0.2s;
+}
+.entry:hover{
+  transform:translateY(-4px);
+  box-shadow:0 12px 24px rgba(0,0,0,0.9);
+}
+.entry-top{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.icon-row{
+  display:flex;
+  gap:4px;
+}
+.icon{
+  width:32px;
+  height:32px;
+  background-size:cover;
+  background-position:center;
+  border:2px solid #c9a44c;
+  border-radius:6px;
+}
+.entry-body{
+  flex:1;
+  color:#f5e6c8;
+  font-size:12px;
+}
+.entry-name{
+  font-weight:bold;
+}
+.voteBox{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  position:absolute;
+  top:6px;
+  right:6px;
+}
+.voteBtn{
+  font-size:16px;
+  cursor:pointer;
+  opacity:0.6;
+  transition:transform .1s,opacity .1s;
+}
+.voteBtn:hover{
+  transform:scale(1.15);
+  opacity:1;
+}
 .voteBtn.active.up{color:#4CAF50;opacity:1;}
 .voteBtn.active.down{color:#E53935;opacity:1;}
-.voteCount{min-width:20px;text-align:center;}
-.entry-actions{display:flex;justify-content:space-between;margin-top:8px;}
-#adminPanel{margin-top:20px;background:#1a1208;padding:10px;border-radius:8px;border:2px solid #8c6a32;display:none;}
-.adminUser{display:flex;justify-content:space-between;margin-bottom:6px;}
-.adminUser button{padding:2px 6px;font-size:0.8em;}
-#updateHistory{margin-top:20px;background:#1a1208;padding:10px;border-radius:8px;border:2px solid #8c6a32;max-height:200px;overflow-y:auto;}
+.voteCount{
+  min-width:18px;
+  text-align:center;
+  font-size:12px;
+}
+.entry-actions{
+  display:flex;
+  justify-content:space-between;
+  margin-top:6px;
+}
+#adminPanel{
+  margin-top:20px;
+  background:#1a1208;
+  padding:10px;
+  border-radius:8px;
+  border:2px solid #8c6a32;
+  display:none;
+}
+.adminUser{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:6px;
+}
+.adminUser button{
+  padding:2px 6px;
+  font-size:0.8em;
+}
+#updateHistory{
+  margin-top:20px;
+  background:#1a1208;
+  padding:10px;
+  border-radius:8px;
+  border:2px solid #8c6a32;
+  max-height:200px;
+  overflow-y:auto;
+  font-size:11px;
+}
 </style>
 </head>
 <body>
 <div class="container">
-<h1>WoW Classic / TBC – Schandtatenliste</h1>
+  <h1>WoW Classic / TBC – Schandtatenliste</h1>
 
-<div id="loginPanel">
-  <input type="email" id="email" placeholder="Email"><br><br>
-  <input type="password" id="password" placeholder="Passwort"><br><br>
-  <button id="registerBtn">Registrieren</button>
-  <button id="loginBtn">Login</button>
-</div>
-
-<div id="mainContent" style="display:none;">
-  <div class="filters">
-    <input id="search" placeholder="Suche...">
-    <select id="filterRace"><option value="">Alle Rassen</option>
-      <option>Mensch</option><option>Zwerg</option><option>Nachtelf</option><option>Gnom</option><option>Draenei</option>
-      <option>Ork</option><option>Troll</option><option>Tauren</option><option>Untoter</option><option>Blutelf</option>
-    </select>
-    <select id="filterClass"><option value="">Alle Klassen</option>
-      <option>Krieger</option><option>Paladin</option><option>Jäger</option><option>Schurke</option><option>Priester</option>
-      <option>Schamane</option><option>Magier</option><option>Hexenmeister</option><option>Druide</option>
-    </select>
+  <div id="loginPanel">
+    <input type="email" id="email" placeholder="Email"><br><br>
+    <input type="password" id="password" placeholder="Passwort"><br><br>
+    <button id="registerBtn">Registrieren</button>
+    <button id="loginBtn">Login</button>
   </div>
 
-  <div class="form">
-    <input id="name" placeholder="Name">
-    <select id="race"><option value="">Rasse</option>
-      <option>Mensch</option><option>Zwerg</option><option>Nachtelf</option><option>Gnom</option><option>Draenei</option>
-      <option>Ork</option><option>Troll</option><option>Tauren</option><option>Untoter</option><option>Blutelf</option>
-    </select>
-    <select id="wowClass"><option value="">Klasse</option>
-      <option>Krieger</option><option>Paladin</option><option>Jäger</option><option>Schurke</option><option>Priester</option>
-      <option>Schamane</option><option>Magier</option><option>Hexenmeister</option><option>Druide</option>
-    </select>
-  </div>
-  <div class="form-full">
-    <input id="crime" placeholder="Schandtat">
-  </div>
-  <div class="form-buttons">
-    <button id="addBtn">Hinzufügen</button>
-    <button id="logoutBtn">Logout</button>
-  </div>
+  <div id="mainContent" style="display:none;">
+    <div class="filters">
+      <input id="search" placeholder="Suche...">
+      <select id="filterRace">
+        <option value="">Alle Rassen</option>
+        <option>Mensch</option><option>Zwerg</option><option>Nachtelf</option>
+        <option>Gnom</option><option>Draenei</option>
+        <option>Ork</option><option>Troll</option><option>Tauren</option>
+        <option>Untoter</option><option>Blutelf</option>
+      </select>
+      <select id="filterClass">
+        <option value="">Alle Klassen</option>
+        <option>Krieger</option><option>Paladin</option><option>Jäger</option>
+        <option>Schurke</option><option>Priester</option>
+        <option>Schamane</option><option>Magier</option>
+        <option>Hexenmeister</option><option>Druide</option>
+      </select>
+    </div>
 
-  <div id="list"></div>
-  <div id="adminPanel"><h3>Pending-User Freischalten</h3><div id="pendingList"></div></div>
-  <div id="updateHistory"><strong>Update History:</strong></div>
+    <div class="form">
+      <input id="name" placeholder="Name">
+      <select id="race">
+        <option value="">Rasse</option>
+        <option>Mensch</option><option>Zwerg</option><option>Nachtelf</option>
+        <option>Gnom</option><option>Draenei</option>
+        <option>Ork</option><option>Troll</option><option>Tauren</option>
+        <option>Untoter</option><option>Blutelf</option>
+      </select>
+      <select id="wowClass">
+        <option value="">Klasse</option>
+        <option>Krieger</option><option>Paladin</option><option>Jäger</option>
+        <option>Schurke</option><option>Priester</option>
+        <option>Schamane</option><option>Magier</option>
+        <option>Hexenmeister</option><option>Druide</option>
+      </select>
+    </div>
+    <div class="form-full">
+      <input id="crime" placeholder="Schandtat">
+    </div>
+    <div class="form-buttons">
+      <button id="addBtn">Hinzufügen</button>
+      <button id="logoutBtn">Logout</button>
+    </div>
+
+    <div id="list"></div>
+
+    <div id="adminPanel">
+      <h3>Pending-User freischalten</h3>
+      <div id="pendingList"></div>
+    </div>
+
+    <div id="updateHistory">
+      <strong>Update History:</strong>
+    </div>
+  </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, getDocs, updateDoc, deleteDoc, setDoc, increment } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import {
+  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+  signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import {
+  getFirestore, collection, addDoc, query, orderBy, onSnapshot,
+  serverTimestamp, doc, getDoc, getDocs, updateDoc, deleteDoc,
+  setDoc, increment
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-// --- Firebase Config ---
-const firebaseConfig={
+// Firebase Config
+const firebaseConfig = {
   apiKey:"AIzaSyBOko8Wg-jCvz7aRPleNcbJCm8u2CYtjps",
   authDomain:"wow-hs-liste.firebaseapp.com",
   projectId:"wow-hs-liste",
@@ -110,12 +262,12 @@ const firebaseConfig={
   messagingSenderId:"180764359810",
   appId:"1:180764359810:web:03cef19546dcc32081889b"
 };
-const app=initializeApp(firebaseConfig);
-const auth=getAuth(app);
-const db=getFirestore(app);
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
 
-// --- Klassen & Rassen + Icons ---
-const initialClassData={
+// Klassen & Rassen + Icons
+const initialClassData = {
   Krieger:{color:"#C79C6E",icon:"https://wow.zamimg.com/images/wow/icons/large/class_warrior.jpg"},
   Magier:{color:"#69CCF0",icon:"https://wow.zamimg.com/images/wow/icons/large/class_mage.jpg"},
   Priester:{color:"#FFFFFF",icon:"https://wow.zamimg.com/images/wow/icons/large/class_priest.jpg"},
@@ -126,7 +278,7 @@ const initialClassData={
   Paladin:{color:"#F58CBA",icon:"https://wow.zamimg.com/images/wow/icons/large/class_paladin.jpg"},
   Schamane:{color:"#0070DE",icon:"https://wow.zamimg.com/images/wow/icons/large/class_shaman.jpg"}
 };
-const raceIcons={
+const raceIcons = {
   Mensch:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_human_male.jpg",
   Zwerg:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_dwarf_male.jpg",
   Nachtelf:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_nightelf_male.jpg",
@@ -139,90 +291,240 @@ const raceIcons={
   Blutelf:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_bloodelf_male.jpg"
 };
 
-// --- DOM ---
-const email=document.getElementById("email"),password=document.getElementById("password"),
-loginPanel=document.getElementById("loginPanel"),mainContent=document.getElementById("mainContent"),
-list=document.getElementById("list"),nameInput=document.getElementById("name"),
-race=document.getElementById("race"),wowClass=document.getElementById("wowClass"),
-crimeInput=document.getElementById("crime"),adminPanel=document.getElementById("adminPanel"),
-pendingList=document.getElementById("pendingList"),updateHistory=document.getElementById("updateHistory");
+// DOM
+const email        = document.getElementById("email");
+const password     = document.getElementById("password");
+const loginPanel   = document.getElementById("loginPanel");
+const mainContent  = document.getElementById("mainContent");
+const list         = document.getElementById("list");
+const nameInput    = document.getElementById("name");
+const race         = document.getElementById("race");
+const wowClass     = document.getElementById("wowClass");
+const crimeInput   = document.getElementById("crime");
+const adminPanel   = document.getElementById("adminPanel");
+const pendingList  = document.getElementById("pendingList");
+const updateHistory= document.getElementById("updateHistory");
+const searchInput  = document.getElementById("search");
+const filterRace   = document.getElementById("filterRace");
+const filterClass  = document.getElementById("filterClass");
 
-let entries=[];
+let entries = [];
 
-// --- Register/Login/Logout ---
-document.getElementById("registerBtn").onclick=async()=>{
+// Register/Login/Logout
+document.getElementById("registerBtn").onclick = async () => {
   try{
-    const cred=await createUserWithEmailAndPassword(auth,email.value,password.value);
+    const cred = await createUserWithEmailAndPassword(auth,email.value,password.value);
     await setDoc(doc(db,"users",cred.user.uid),{email:email.value,role:"pending"});
-    alert("Registriert – Admin muss freischalten"); signOut(auth);
-  }catch(e){alert("Fehler: "+e.message);}
+    alert("Registriert – Admin muss freischalten");
+    signOut(auth);
+  }catch(e){
+    alert("Fehler: "+e.message);
+  }
 };
-document.getElementById("loginBtn").onclick=()=>signInWithEmailAndPassword(auth,email.value,password.value).catch(e=>alert(e.message));
-document.getElementById("logoutBtn").onclick=()=>signOut(auth);
+document.getElementById("loginBtn").onclick  = () =>
+  signInWithEmailAndPassword(auth,email.value,password.value).catch(e=>alert(e.message));
+document.getElementById("logoutBtn").onclick = () => signOut(auth);
 
-// --- Auth State ---
-onAuthStateChanged(auth,async user=>{
-  if(!user){loginPanel.style.display="block";mainContent.style.display="none";return;}
-  const snap=await getDoc(doc(db,"users",user.uid));
-  if(!snap.exists()||snap.data().role==="pending"){alert("Noch nicht freigeschaltet");signOut(auth);return;}
-  loginPanel.style.display="none";mainContent.style.display="block";
-  if(snap.data().role==="admin"){adminPanel.style.display="block";loadPending();}else adminPanel.style.display="none";
+// Auth State
+onAuthStateChanged(auth, async user => {
+  if(!user){
+    loginPanel.style.display="block";
+    mainContent.style.display="none";
+    return;
+  }
+  const snap = await getDoc(doc(db,"users",user.uid));
+  if(!snap.exists() || snap.data().role==="pending"){
+    alert("Noch nicht freigeschaltet");
+    signOut(auth);
+    return;
+  }
+  loginPanel.style.display="none";
+  mainContent.style.display="block";
+
+  if(snap.data().role==="admin"){
+    adminPanel.style.display="block";
+    loadPending();
+  }else{
+    adminPanel.style.display="none";
+  }
   loadEntries();
 });
 
 // Add Entry
-document.getElementById("addBtn").onclick=async()=>{
-  const user=auth.currentUser;if(!user||!nameInput.value||!race.value||!wowClass.value||!crimeInput.value){alert("Alle Felder ausfüllen");return;}
-  const docRef=await addDoc(collection(db,"entries"),{uid:user.uid,name:nameInput.value,race:race.value,class:wowClass.value,crime:crimeInput.value,role:initialClassData[wowClass.value]?.role||"",upvotes:0,downvotes:0,createdAt:serverTimestamp()});
-  appendUpdate(`Eintrag hinzugefügt: ${nameInput.value}`); 
-  nameInput.value="";race.value="";wowClass.value="";crimeInput.value="";
+document.getElementById("addBtn").onclick = async () => {
+  const user = auth.currentUser;
+  if(!user || !nameInput.value || !race.value || !wowClass.value || !crimeInput.value){
+    alert("Alle Felder ausfüllen");
+    return;
+  }
+  await addDoc(collection(db,"entries"),{
+    uid:user.uid,
+    name:nameInput.value,
+    race:race.value,
+    class:wowClass.value,
+    crime:crimeInput.value,
+    role:initialClassData[wowClass.value]?.role || "",
+    upvotes:0,
+    downvotes:0,
+    createdAt:serverTimestamp()
+  });
+  appendUpdate(`Eintrag hinzugefügt: ${nameInput.value}`);
+  nameInput.value="";
+  race.value="";
+  wowClass.value="";
+  crimeInput.value="";
 };
 
 // Update History
-function appendUpdate(text){const p=document.createElement("div");p.innerText=`${new Date().toLocaleString()}: ${text}`;updateHistory.appendChild(p);updateHistory.scrollTop=updateHistory.scrollHeight;}
+function appendUpdate(text){
+  const p=document.createElement("div");
+  p.innerText=`${new Date().toLocaleString()}: ${text}`;
+  updateHistory.appendChild(p);
+  updateHistory.scrollTop=updateHistory.scrollHeight;
+}
 
-// Load Entries with Live Vote
+// Load Entries
 function loadEntries(){
   const q=query(collection(db,"entries"),orderBy("createdAt"));
   onSnapshot(q,snap=>{
-    entries=[];
-    snap.docs.forEach(d=>{
-      const data={id:d.id,...d.data()};entries.push(data);
-      let div=document.getElementById("entry-"+d.id);
-      if(!div){
-        div=document.createElement("div");div.className="entry";div.id="entry-"+d.id;
-        div.innerHTML=`<div class="icon" style="background-image:url(${raceIcons[data.race]||""})"></div><div class="icon" style="background-image:url(${initialClassData[data.class]?.icon||""})"></div><div><strong>${data.name}</strong><br>${data.race}/${data.class}<br>Schandtat: ${data.crime}</div><div class="voteBox"><span class="voteBtn" id="up-${d.id}">👍</span><span class="voteCount" id="upc-${d.id}">${data.upvotes}</span><span class="voteBtn" id="down-${d.id}">👎</span><span class="voteCount" id="downc-${d.id}">${data.downvotes}</span></div><button onclick="editEntry('${d.id}','${data.name}','${data.race}','${data.class}','${data.crime}')">✏️</button><button onclick="deleteEntry('${d.id}')">🗑</button>`;
-        list.appendChild(div);
-        document.getElementById("up-"+d.id).onclick=()=>vote(d.id,'up');
-        document.getElementById("down-"+d.id).onclick=()=>vote(d.id,'down');
-      } else {document.getElementById("upc-"+d.id).innerText=data.upvotes;document.getElementById("downc-"+d.id).innerText=data.downvotes;}
-    });
+    entries = snap.docs.map(d => ({id:d.id, ...d.data()}));
+    renderEntries();
   });
 }
 
-// Vote Live
+// Filter/Search Rendering
+function renderEntries(){
+  list.innerHTML="";
+  const term = (searchInput.value || "").toLowerCase();
+  const fr   = filterRace.value;
+  const fc   = filterClass.value;
+
+  entries
+    .filter(e =>
+      (!fr || e.race===fr) &&
+      (!fc || e.class===fc) &&
+      (!term ||
+        e.name.toLowerCase().includes(term) ||
+        e.crime.toLowerCase().includes(term))
+    )
+    .forEach(data => {
+      const div=document.createElement("div");
+      div.className="entry";
+      div.id="entry-"+data.id;
+      div.style.borderLeftColor = initialClassData[data.class]?.color || "#8c6a32";
+
+      div.innerHTML = `
+        <div class="entry-top">
+          <div class="icon-row">
+            <div class="icon" style="background-image:url('${raceIcons[data.race] || ""}')"></div>
+            <div class="icon" style="background-image:url('${initialClassData[data.class]?.icon || ""}')"></div>
+          </div>
+          <div class="entry-body">
+            <div class="entry-name">${data.name}</div>
+            <div style="font-size:11px;margin-bottom:4px;">
+              ${data.race} / ${data.class}
+            </div>
+            <div>Schandtat: ${data.crime}</div>
+          </div>
+          <div class="voteBox">
+            <span class="voteBtn" id="up-${data.id}">👍</span>
+            <span class="voteCount" id="upc-${data.id}">${data.upvotes}</span>
+            <span class="voteBtn" id="down-${data.id}">👎</span>
+            <span class="voteCount" id="downc-${data.id}">${data.downvotes}</span>
+          </div>
+        </div>
+        <div class="entry-actions">
+          <button id="edit-${data.id}">✏️</button>
+          <button id="del-${data.id}">🗑</button>
+        </div>
+      `;
+
+      list.appendChild(div);
+
+      document.getElementById("up-"+data.id).onclick   = () => vote(data.id,"up");
+      document.getElementById("down-"+data.id).onclick = () => vote(data.id,"down");
+      document.getElementById("edit-"+data.id).onclick =
+        () => editEntry(data.id,data.name,data.race,data.class,data.crime);
+      document.getElementById("del-"+data.id).onclick  =
+        () => deleteEntry(data.id);
+    });
+}
+
+searchInput.addEventListener("input",renderEntries);
+filterRace.addEventListener("change",renderEntries);
+filterClass.addEventListener("change",renderEntries);
+
+// Vote
 async function vote(id,type){
-  const user=auth.currentUser;if(!user){alert("Bitte einloggen");return;}
-  const voteRef=doc(db,"entries",id,"votes",user.uid),entryRef=doc(db,"entries",id);
-  const snap=await getDoc(voteRef);
-  if(!snap.exists()){await setDoc(voteRef,{type});await updateDoc(entryRef,{[type==='up'?'upvotes':'downvotes']:increment(1)});}
-  else{const old=snap.data().type;if(old===type)return;await updateDoc(voteRef,{type});await updateDoc(entryRef,{[old==='up'?'upvotes':'downvotes']:increment(-1),[type==='up'?'upvotes':'downvotes']:increment(1)});}
+  const user=auth.currentUser;
+  if(!user){alert("Bitte einloggen");return;}
+  const voteRef = doc(db,"entries",id,"votes",user.uid);
+  const entryRef= doc(db,"entries",id);
+  const snap    = await getDoc(voteRef);
+
+  if(!snap.exists()){
+    await setDoc(voteRef,{type});
+    await updateDoc(entryRef,{
+      [type==='up'?'upvotes':'downvotes']:increment(1)
+    });
+  }else{
+    const old=snap.data().type;
+    if(old===type)return;
+    await updateDoc(voteRef,{type});
+    await updateDoc(entryRef,{
+      [old==='up'?'upvotes':'downvotes']:increment(-1),
+      [type==='up'?'upvotes':'downvotes']:increment(1)
+    });
+  }
 }
 
 // Edit/Delete
-window.editEntry=async(id,name,raceVal,classVal,crime)=>{
-  const newName=prompt("Neuer Name:",name);const newRace=prompt("Neue Rasse:",raceVal);const newClass=prompt("Neue Klasse:",classVal);const newCrime=prompt("Neue Schandtat:",crime);
-  if(newName&&newRace&&newClass&&newCrime){await updateDoc(doc(db,"entries",id),{name:newName,race:newRace,class:newClass,crime:newCrime,role:initialClassData[newClass]?.role||""});appendUpdate(`Eintrag bearbeitet: ${newName}`);}
+async function editEntry(id,name,raceVal,classVal,crime){
+  const newName  = prompt("Neuer Name:",name);
+  const newRace  = prompt("Neue Rasse:",raceVal);
+  const newClass = prompt("Neue Klasse:",classVal);
+  const newCrime = prompt("Neue Schandtat:",crime);
+  if(newName && newRace && newClass && newCrime){
+    await updateDoc(doc(db,"entries",id),{
+      name:newName,
+      race:newRace,
+      class:newClass,
+      crime:newCrime,
+      role:initialClassData[newClass]?.role || ""
+    });
+    appendUpdate(`Eintrag bearbeitet: ${newName}`);
+  }
 }
-window.deleteEntry=async(id)=>{
-  if(confirm("Eintrag löschen?")){await deleteDoc(doc(db,"entries",id));appendUpdate(`Eintrag gelöscht: ${id}`);}
+async function deleteEntry(id){
+  if(confirm("Eintrag löschen?")){
+    await deleteDoc(doc(db,"entries",id));
+    appendUpdate(`Eintrag gelöscht: ${id}`);
+  }
 }
 
 // Admin Pending
-async function loadPending(){pendingList.innerHTML="";const snaps=await getDocs(collection(db,"users"));snaps.forEach(d=>{const u=d.data();if(u.role==="pending"){const div=document.createElement("div");div.className="adminUser";div.innerHTML=`${u.email} <button onclick="approveUser('${d.id}')">Freischalten</button>`;pendingList.appendChild(div);}});}
-window.approveUser=async(uid)=>{await updateDoc(doc(db,"users",uid),{role:"user"}); loadPending();appendUpdate(`User freigeschaltet: ${uid}`);}
+async function loadPending(){
+  pendingList.innerHTML="";
+  const snaps=await getDocs(collection(db,"users"));
+  snaps.forEach(d=>{
+    const u=d.data();
+    if(u.role==="pending"){
+      const div=document.createElement("div");
+      div.className="adminUser";
+      div.innerHTML=`
+        ${u.email}
+        <button data-uid="${d.id}">Freischalten</button>
+      `;
+      pendingList.appendChild(div);
+      div.querySelector("button").onclick = () => approveUser(d.id);
+    }
+  });
+}
+async function approveUser(uid){
+  await updateDoc(doc(db,"users",uid),{role:"user"});
+  loadPending();
+  appendUpdate(`User freigeschaltet: ${uid}`);
+}
 </script>
-</div>
 </body>
 </html>
-

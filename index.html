@@ -170,14 +170,6 @@ onAuthStateChanged(auth,async user=>{
   loadEntries();
 });
 
-// --- Add/Edit/Delete/Voting/Filter/Search/Admin Pending/UpdateHistory ---
-// Hier wird die komplette Logik wie in der vorherigen Version integriert
-</script>
-</div>
-</body>
-</html>
-
-
 // Add Entry
 document.getElementById("addBtn").onclick=async()=>{
   const user=auth.currentUser;if(!user||!nameInput.value||!race.value||!wowClass.value||!crimeInput.value){alert("Alle Felder ausfüllen");return;}
@@ -233,3 +225,4 @@ window.approveUser=async(uid)=>{await updateDoc(doc(db,"users",uid),{role:"user"
 </div>
 </body>
 </html>
+

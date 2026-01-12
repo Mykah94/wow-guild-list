@@ -5,26 +5,43 @@
 <title>WoW Classic / TBC – Schandtatenliste</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
 <style>
-body{margin:0;font-family:'Cinzel',serif;color:#f5e6c8;
-background:url('https://blz-contentstack-images.akamaized.net/v3/assets/bltf408a0557f4e4998/blt6a80c8e7260f84f2/690d2219b415dd246153245b/BCC.png') no-repeat center center fixed;background-size:cover;}
-.container{max-width:1400px;margin:20px auto;padding:20px;background:rgba(10,7,3,0.85);border:6px solid #c9a44c;border-radius:14px;}
+body{
+  margin:0;font-family:'Cinzel',serif;color:#f5e6c8;
+  background:url('https://i.imgur.com/7LzGxKb.jpg') no-repeat center center fixed;
+  background-size:cover;
+}
+.container{
+  max-width:1400px;margin:20px auto;padding:20px;background:rgba(10,7,3,0.85);
+  border:6px solid #c9a44c;border-radius:14px;
+}
 h1{text-align:center;color:#ffd36a;margin-bottom:20px;}
-input,select,button{padding:10px;background:#120c05;border:2px solid #9c7c3f;color:#f5e6c8;border-radius:6px;font-family:inherit;}
+input,select,button{
+  padding:10px;background:#120c05;border:2px solid #9c7c3f;color:#f5e6c8;border-radius:6px;font-family:inherit;
+}
 button{cursor:pointer;background:linear-gradient(to bottom,#e0b75a,#8a6b2f);color:#1b1206;font-weight:bold;}
 #loginPanel{max-width:400px;margin:20px auto;padding:20px;background:#1a1208;border-radius:12px;text-align:center;}
 .form,.filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;}
 .form-full{width:100%;}
 #crime{flex:1;min-width:100%;}
 .form-buttons{display:flex;justify-content:center;gap:12px;margin-top:10px;}
-.list{margin-top:20px;overflow-y:auto;max-height:500px;}
-.entry{display:grid;grid-template-columns:44px 44px 1fr 170px;gap:12px;align-items:center;padding:12px;background:linear-gradient(180deg,#1a1208,#0d0904);border:2px solid #8c6a32;border-left:8px solid;border-radius:8px;margin-bottom:10px;}
-.icon{width:40px;height:40px;background-size:cover;background-position:center;border:2px solid #c9a44c;border-radius:4px;}
-.voteBox{display:flex;align-items:center;justify-content:flex-end;gap:6px;}
+.list{margin-top:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:15px;max-height:600px;overflow-y:auto;}
+.entry{
+  display:flex;flex-direction:column;background:linear-gradient(180deg,#1a1208,#0d0904);
+  border:2px solid #8c6a32;border-left:8px solid;border-radius:12px;padding:12px;
+  box-shadow:0 6px 12px rgba(0,0,0,0.7);transition:transform 0.2s,box-shadow 0.2s;position:relative;
+}
+.entry:hover{transform:translateY(-4px);box-shadow:0 12px 24px rgba(0,0,0,0.9);}
+.entry-top{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.icon{width:44px;height:44px;background-size:cover;background-position:center;border:2px solid #c9a44c;border-radius:6px;}
+.entry-body{flex:1;color:#f5e6c8;}
+.entry-body strong{font-size:1.1em;}
+.voteBox{display:flex;align-items:center;justify-content:flex-end;gap:6px;position:absolute;top:10px;right:10px;}
 .voteBtn{font-size:20px;cursor:pointer;opacity:0.5;transition:transform .1s,opacity .1s;}
 .voteBtn:hover{transform:scale(1.2);opacity:1;}
 .voteBtn.active.up{color:#4CAF50;opacity:1;}
 .voteBtn.active.down{color:#E53935;opacity:1;}
 .voteCount{min-width:20px;text-align:center;}
+.entry-actions{display:flex;justify-content:space-between;margin-top:8px;}
 #adminPanel{margin-top:20px;background:#1a1208;padding:10px;border-radius:8px;border:2px solid #8c6a32;display:none;}
 .adminUser{display:flex;justify-content:space-between;margin-bottom:6px;}
 .adminUser button{padding:2px 6px;font-size:0.8em;}
@@ -84,24 +101,45 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebas
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, getDocs, updateDoc, deleteDoc, setDoc, increment } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-// Firebase Config
-const firebaseConfig={apiKey:"AIzaSyBOko8Wg-jCvz7aRPleNcbJCm8u2CYtjps",authDomain:"wow-hs-liste.firebaseapp.com",projectId:"wow-hs-liste",storageBucket:"wow-hs-liste.appspot.com",messagingSenderId:"180764359810",appId:"1:180764359810:web:03cef19546dcc32081889b"};
-const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
-
-const initialClassData={
-Krieger:{color:"#C79C6E",icon:"https://wow.zamimg.com/images/wow/icons/large/class_warrior.jpg"},
-Magier:{color:"#69CCF0",icon:"https://wow.zamimg.com/images/wow/icons/large/class_mage.jpg"},
-Priester:{color:"#FFFFFF",icon:"https://wow.zamimg.com/images/wow/icons/large/class_priest.jpg"},
-Schurke:{color:"#FFF569",icon:"https://wow.zamimg.com/images/wow/icons/large/class_rogue.jpg"},
-Jäger:{color:"#ABD473",icon:"https://wow.zamimg.com/images/wow/icons/large/class_hunter.jpg"},
-Hexenmeister:{color:"#9482C9",icon:"https://wow.zamimg.com/images/wow/icons/large/class_warlock.jpg"},
-Druide:{color:"#FF7D0A",icon:"https://wow.zamimg.com/images/wow/icons/large/class_druid.jpg"},
-Paladin:{color:"#F58CBA",icon:"https://wow.zamimg.com/images/wow/icons/large/class_paladin.jpg"},
-Schamane:{color:"#0070DE",icon:"https://wow.zamimg.com/images/wow/icons/large/class_shaman.jpg"}
+// --- Firebase Config ---
+const firebaseConfig={
+  apiKey:"AIzaSyBOko8Wg-jCvz7aRPleNcbJCm8u2CYtjps",
+  authDomain:"wow-hs-liste.firebaseapp.com",
+  projectId:"wow-hs-liste",
+  storageBucket:"wow-hs-liste.appspot.com",
+  messagingSenderId:"180764359810",
+  appId:"1:180764359810:web:03cef19546dcc32081889b"
 };
-const raceIcons={Mensch:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_human_male.jpg",Zwerg:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_dwarf_male.jpg",Nachtelf:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_nightelf_male.jpg",Gnom:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_gnome_male.jpg",Draenei:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_draenei_male.jpg",Ork:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_orc_male.jpg",Troll:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_troll_male.jpg",Tauren:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_tauren_male.jpg",Untoter:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_undead_male.jpg",Blutelf:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_bloodelf_male.jpg"};
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
 
-// DOM
+// --- Klassen & Rassen + Icons ---
+const initialClassData={
+  Krieger:{color:"#C79C6E",icon:"https://wow.zamimg.com/images/wow/icons/large/class_warrior.jpg"},
+  Magier:{color:"#69CCF0",icon:"https://wow.zamimg.com/images/wow/icons/large/class_mage.jpg"},
+  Priester:{color:"#FFFFFF",icon:"https://wow.zamimg.com/images/wow/icons/large/class_priest.jpg"},
+  Schurke:{color:"#FFF569",icon:"https://wow.zamimg.com/images/wow/icons/large/class_rogue.jpg"},
+  Jäger:{color:"#ABD473",icon:"https://wow.zamimg.com/images/wow/icons/large/class_hunter.jpg"},
+  Hexenmeister:{color:"#9482C9",icon:"https://wow.zamimg.com/images/wow/icons/large/class_warlock.jpg"},
+  Druide:{color:"#FF7D0A",icon:"https://wow.zamimg.com/images/wow/icons/large/class_druid.jpg"},
+  Paladin:{color:"#F58CBA",icon:"https://wow.zamimg.com/images/wow/icons/large/class_paladin.jpg"},
+  Schamane:{color:"#0070DE",icon:"https://wow.zamimg.com/images/wow/icons/large/class_shaman.jpg"}
+};
+const raceIcons={
+  Mensch:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_human_male.jpg",
+  Zwerg:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_dwarf_male.jpg",
+  Nachtelf:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_nightelf_male.jpg",
+  Gnom:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_gnome_male.jpg",
+  Draenei:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_draenei_male.jpg",
+  Ork:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_orc_male.jpg",
+  Troll:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_troll_male.jpg",
+  Tauren:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_tauren_male.jpg",
+  Untoter:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_undead_male.jpg",
+  Blutelf:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_bloodelf_male.jpg"
+};
+
+// --- DOM ---
 const email=document.getElementById("email"),password=document.getElementById("password"),
 loginPanel=document.getElementById("loginPanel"),mainContent=document.getElementById("mainContent"),
 list=document.getElementById("list"),nameInput=document.getElementById("name"),
@@ -111,19 +149,25 @@ pendingList=document.getElementById("pendingList"),updateHistory=document.getEle
 
 let entries=[];
 
-// Register/Login/Logout
-document.getElementById("registerBtn").onclick=async()=>{try{const cred=await createUserWithEmailAndPassword(auth,email.value,password.value);await setDoc(doc(db,"users",cred.user.uid),{email:email.value,role:"pending"});alert("Registriert – Admin muss freischalten");signOut(auth);}catch(e){alert("Fehler: "+e.message);}};
+// --- Register/Login/Logout ---
+document.getElementById("registerBtn").onclick=async()=>{
+  try{
+    const cred=await createUserWithEmailAndPassword(auth,email.value,password.value);
+    await setDoc(doc(db,"users",cred.user.uid),{email:email.value,role:"pending"});
+    alert("Registriert – Admin muss freischalten"); signOut(auth);
+  }catch(e){alert("Fehler: "+e.message);}
+};
 document.getElementById("loginBtn").onclick=()=>signInWithEmailAndPassword(auth,email.value,password.value).catch(e=>alert(e.message));
 document.getElementById("logoutBtn").onclick=()=>signOut(auth);
 
-// Auth State
+// --- Auth State ---
 onAuthStateChanged(auth,async user=>{
-  if(!user){loginPanel.style.display="block"; mainContent.style.display="none"; return;}
+  if(!user){loginPanel.style.display="block";mainContent.style.display="none";return;}
   const snap=await getDoc(doc(db,"users",user.uid));
   if(!snap.exists()||snap.data().role==="pending"){alert("Noch nicht freigeschaltet");signOut(auth);return;}
-  loginPanel.style.display="none"; mainContent.style.display="block";
-  if(snap.data().role==="admin"){adminPanel.style.display="block"; loadPending();} else adminPanel.style.display="none";
-  loadEntries(); 
+  loginPanel.style.display="none";mainContent.style.display="block";
+  if(snap.data().role==="admin"){adminPanel.style.display="block";loadPending();}else adminPanel.style.display="none";
+  loadEntries();
 });
 
 // Add Entry
@@ -181,4 +225,3 @@ window.approveUser=async(uid)=>{await updateDoc(doc(db,"users",uid),{role:"user"
 </div>
 </body>
 </html>
-

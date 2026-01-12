@@ -112,8 +112,8 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 // Sounds (zuverlässige URLs)
-const soundUp = new Audio("https://freesound.org/data/previews/341/341695_6242730-lq.mp3");
-const soundDown = new Audio("https://freesound.org/data/previews/341/341696_6242730-lq.mp3");
+const soundUp = new Audio("https://github.com/Mykah94/wow-guild-list/blob/main/thrall-hall-wow.mp3");
+const soundDown = new Audio("https://github.com/Mykah94/wow-guild-list/blob/main/murloc.mp3");
 
 // Klassen & Rassen
 const classes=["Krieger","Paladin","Jäger","Schurke","Priester","Schamane","Magier","Hexenmeister","Druide"];
@@ -249,3 +249,4 @@ window.approveUser=uid=>updateDoc(doc(db,"users",uid),{role:"user"}).then(loadPe
 </script>
 </body>
 </html>
+

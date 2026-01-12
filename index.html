@@ -7,145 +7,115 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
 
 <style>
-body{
+html,body{
   margin:0;
+  min-height:100%;
   font-family:'Cinzel',serif;
   background:
-    linear-gradient(rgba(0,0,0,.65),rgba(0,0,0,.85)),
-    url("https://images.blz-contentstack.com/v3/assets/blt3452e3b114fab0cd/blt3b0c3d71b77fa1f1/5dc1f1c3c66dfe8a5f35d4db/classic-map.jpg");
+    linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.85)),
+    url("https://images.blz-contentstack.com/v3/assets/bltc965041283bac56c/blt7f7a0d80d08d98f3/60c12f7bbd2f503eb7b1d29b/wow_tbc_background.jpg");
   background-size:cover;
   background-attachment:fixed;
   color:#f5e6c8;
 }
 
 .container{
-  max-width:1400px;
+  max-width:1350px;
   margin:40px auto;
   padding:30px;
-  background:rgba(20,14,7,.95);
+  background:rgba(15,10,5,.92);
   border:6px solid #c9a44c;
-  border-radius:14px;
+  border-radius:16px;
+  box-shadow:0 0 40px #000;
 }
 
-h1{text-align:center;color:#ffd36a;}
+h1{text-align:center;color:#ffd36a}
 
 input,select,button{
+  padding:10px;
   background:#120c05;
   border:2px solid #9c7c3f;
   color:#f5e6c8;
-  padding:10px;
   border-radius:6px;
   font-family:inherit;
 }
 
 button{
   cursor:pointer;
-  background:linear-gradient(#f7d77a,#9a6b2f);
+  background:linear-gradient(#e7c26a,#8a6b2f);
   color:#1b1206;
   font-weight:bold;
 }
-
-button:hover{filter:brightness(1.1);}
+button:hover{filter:brightness(1.15)}
 
 #loginPanel{
   max-width:400px;
-  margin:80px auto;
-  padding:25px;
+  margin:40px auto;
   background:#1a1208;
-  border-radius:12px;
-  border:3px solid #c9a44c;
+  padding:20px;
+  border-radius:14px;
+  box-shadow:0 0 25px #000;
 }
 
-#mainContent{display:none;}
+#mainContent{display:none}
 
-.filters,.form{display:flex;gap:10px;flex-wrap:wrap;}
-.form-full{margin-top:10px;}
-.form-buttons{text-align:center;margin-top:15px;}
+.filters,.form{display:flex;gap:10px;flex-wrap:wrap}
+.form-full{margin-top:10px}
+#crime{width:100%}
 
 .entry{
   display:grid;
-  grid-template-columns:44px 44px 1fr 180px;
+  grid-template-columns:44px 44px 1fr 160px;
   gap:12px;
+  align-items:center;
   padding:12px;
-  margin-bottom:10px;
+  margin-bottom:12px;
   background:linear-gradient(#1a1208,#0d0904);
   border:2px solid #8c6a32;
   border-left:8px solid;
-  border-radius:8px;
+  border-radius:10px;
 }
 
 .icon{
   width:40px;height:40px;
   background-size:cover;
+  background-position:center;
   border:2px solid #c9a44c;
+  border-radius:4px;
 }
 
-.voteBox{
-  display:flex;
-  flex-direction:column;
-  align-items:flex-end;
-  gap:4px;
-}
-
-.voteRow{
-  display:flex;
-  align-items:center;
-  gap:6px;
-}
-
+.voteBox{text-align:right}
 .voteBtn{
-  font-size:20px;
   cursor:pointer;
-  opacity:.5;
+  font-size:20px;
+  opacity:.4;
+  transition:.15s;
 }
+.voteBtn:hover{transform:scale(1.25);opacity:1}
+.voteBtn.active.up{color:#4CAF50;opacity:1}
+.voteBtn.active.down{color:#E53935;opacity:1}
 
-.voteBtn.active.up{color:#4caf50;opacity:1;}
-.voteBtn.active.down{color:#e53935;opacity:1;}
-
-.editRow{
-  display:flex;
-  gap:6px;
-}
-
-.editRow button{
+.smallBtn{
+  padding:4px 6px;
   font-size:12px;
-  padding:3px 6px;
+  margin-top:4px;
 }
 
-#adminPanel,#updatePanel{
-  background:#120c05;
-  border:2px solid #9c7c3f;
-  padding:10px;
-  border-radius:10px;
+#adminPanel,#historyPanel{
   margin-top:20px;
-}
-
-#updatePanel{
-  position:fixed;
-  right:20px;
-  top:120px;
-  width:260px;
-}
-
-.tooltip:hover::after{
-  content:attr(data-tip);
-  position:absolute;
-  background:#0b0b0b;
-  border:2px solid #9c7c3f;
-  padding:6px;
-  color:#ffd36a;
-  font-size:12px;
-  white-space:nowrap;
-  transform:translate(-50%,120%);
+  padding:10px;
+  background:#1a1208;
+  border:2px solid #8c6a32;
+  border-radius:10px;
 }
 </style>
 </head>
 
 <body>
 <div class="container">
-
 <h1>WoW Classic / TBC – Schandtatenliste</h1>
 
+<!-- LOGIN -->
 <div id="loginPanel">
   <input id="email" placeholder="Email"><br><br>
   <input id="password" type="password" placeholder="Passwort"><br><br>
@@ -153,10 +123,11 @@ button:hover{filter:brightness(1.1);}
   <button id="registerBtn">Registrieren</button>
 </div>
 
+<!-- MAIN -->
 <div id="mainContent">
 
 <div class="filters">
-  <input id="search" placeholder="Suche...">
+  <input id="search" placeholder="Suche">
   <select id="filterRace"><option value="">Alle Rassen</option></select>
   <select id="filterClass"><option value="">Alle Klassen</option></select>
 </div>
@@ -171,127 +142,124 @@ button:hover{filter:brightness(1.1);}
   <input id="crime" placeholder="Schandtat">
 </div>
 
-<div class="form-buttons">
+<div style="text-align:center;margin-top:10px">
   <button id="addBtn">Hinzufügen</button>
   <button id="logoutBtn">Logout</button>
 </div>
 
 <div id="list"></div>
 
-<div id="adminPanel" style="display:none;">
+<div id="adminPanel" style="display:none">
   <h3>Pending User</h3>
   <div id="pendingList"></div>
 </div>
 
-</div>
+<div id="historyPanel">
+  <h3>Update-Historie</h3>
+  <ul>
+    <li>1.0 – Initiale Version</li>
+    <li>1.1 – Live Voting</li>
+    <li>1.2 – Admin Panel</li>
+    <li>1.3 – TBC Design</li>
+  </ul>
 </div>
 
-<div id="updatePanel">
-<h3>Updates</h3>
-<ul>
-<li>1.0 – Grundsystem</li>
-<li>1.1 – Voting + Icons</li>
-<li>1.2 – Admin & Pending</li>
-<li>1.3 – Live Votes + Sounds</li>
-</ul>
+</div>
 </div>
 
 <script type="module">
-import {initializeApp} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import {getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import {getFirestore,collection,addDoc,doc,getDoc,getDocs,onSnapshot,updateDoc,setDoc,increment,query,orderBy,serverTimestamp} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteDoc, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const firebaseConfig={
- apiKey:"AIzaSyBOko8Wg-jCvz7aRPleNcbJCm8u2CYtjps",
- authDomain:"wow-hs-liste.firebaseapp.com",
- projectId:"wow-hs-liste",
- storageBucket:"wow-hs-liste.appspot.com",
- messagingSenderId:"180764359810",
- appId:"1:180764359810:web:03cef19546dcc32081889b"
+  apiKey:"AIzaSyBOko8Wg-jCvz7aRPleNcbJCm8u2CYtjps",
+  authDomain:"wow-hs-liste.firebaseapp.com",
+  projectId:"wow-hs-liste",
+  storageBucket:"wow-hs-liste.appspot.com",
+  messagingSenderId:"180764359810",
+  appId:"1:180764359810:web:03cef19546dcc32081889b"
 };
 
 const app=initializeApp(firebaseConfig);
 const auth=getAuth(app);
 const db=getFirestore(app);
 
-const soundUp=new Audio("https://www.myinstants.com/media/sounds/wow-level-up.mp3");
-const soundDown=new Audio("https://www.myinstants.com/media/sounds/wow-fail.mp3");
-
-const races=["Mensch","Zwerg","Nachtelf","Gnom","Draenei","Ork","Troll","Tauren","Untoter","Blutelf"];
+/* ICONS */
 const classes=["Krieger","Paladin","Jäger","Schurke","Priester","Schamane","Magier","Hexenmeister","Druide"];
+const races=["Mensch","Zwerg","Nachtelf","Gnom","Draenei","Ork","Troll","Tauren","Untoter","Blutelf"];
 
-races.forEach(r=>race.innerHTML+=`<option>${r}</option>`);
-classes.forEach(c=>wowClass.innerHTML+=`<option>${c}</option>`);
-races.forEach(r=>filterRace.innerHTML+=`<option>${r}</option>`);
-classes.forEach(c=>filterClass.innerHTML+=`<option>${c}</option>`);
+const classIcons={
+Krieger:"https://wow.zamimg.com/images/wow/icons/large/class_warrior.jpg",
+Paladin:"https://wow.zamimg.com/images/wow/icons/large/class_paladin.jpg",
+Jäger:"https://wow.zamimg.com/images/wow/icons/large/class_hunter.jpg",
+Schurke:"https://wow.zamimg.com/images/wow/icons/large/class_rogue.jpg",
+Priester:"https://wow.zamimg.com/images/wow/icons/large/class_priest.jpg",
+Schamane:"https://wow.zamimg.com/images/wow/icons/large/class_shaman.jpg",
+Magier:"https://wow.zamimg.com/images/wow/icons/large/class_mage.jpg",
+Hexenmeister:"https://wow.zamimg.com/images/wow/icons/large/class_warlock.jpg",
+Druide:"https://wow.zamimg.com/images/wow/icons/large/class_druid.jpg"
+};
 
-onAuthStateChanged(auth,async u=>{
- if(!u){loginPanel.style.display="block";mainContent.style.display="none";return;}
- const snap=await getDoc(doc(db,"users",u.uid));
- if(!snap.exists()||snap.data().role==="pending"){alert("Noch nicht freigeschaltet");signOut(auth);return;}
- loginPanel.style.display="none";mainContent.style.display="block";
- if(snap.data().role==="admin") loadPending();
- loadEntries();
-});
+const raceIcons={
+Mensch:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_human_male.jpg",
+Zwerg:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_dwarf_male.jpg",
+Nachtelf:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_nightelf_male.jpg",
+Gnom:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_gnome_male.jpg",
+Draenei:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_draenei_male.jpg",
+Ork:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_orc_male.jpg",
+Troll:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_troll_male.jpg",
+Tauren:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_tauren_male.jpg",
+Untoter:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_undead_male.jpg",
+Blutelf:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_bloodelf_male.jpg"
+};
 
+/* FILL SELECTS */
+const fill=(id,arr)=>{const s=document.getElementById(id);arr.forEach(v=>{const o=document.createElement("option");o.value=o.text=v;s.appendChild(o);});};
+fill("race",races);fill("filterRace",races);
+fill("wowClass",classes);fill("filterClass",classes);
+
+/* AUTH */
 loginBtn.onclick=()=>signInWithEmailAndPassword(auth,email.value,password.value);
 registerBtn.onclick=async()=>{
  const c=await createUserWithEmailAndPassword(auth,email.value,password.value);
  await setDoc(doc(db,"users",c.user.uid),{email:email.value,role:"pending"});
- alert("Registriert – wartet auf Freigabe");
- signOut(auth);
+ alert("Registriert – Admin muss freigeben");
 };
 logoutBtn.onclick=()=>signOut(auth);
 
+onAuthStateChanged(auth,async user=>{
+ if(!user){loginPanel.style.display="block";mainContent.style.display="none";return;}
+ const snap=await getDoc(doc(db,"users",user.uid));
+ if(!snap.exists()||snap.data().role==="pending"){alert("Nicht freigeschaltet");signOut(auth);return;}
+ loginPanel.style.display="none";mainContent.style.display="block";
+});
+
+/* ADD ENTRY */
 addBtn.onclick=()=>addDoc(collection(db,"entries"),{
  name:name.value,race:race.value,class:wowClass.value,crime:crime.value,
  up:0,down:0,createdAt:serverTimestamp()
 });
 
-function loadEntries(){
- onSnapshot(query(collection(db,"entries"),orderBy("createdAt","desc")),snap=>{
-  list.innerHTML="";
-  snap.forEach(d=>{
-   const e=d.data();
-   const div=document.createElement("div");
-   div.className="entry";
-   div.innerHTML=`
-   <div class="icon" style="background-image:url(https://wow.zamimg.com/images/wow/icons/large/achievement_character_${e.race.toLowerCase()}_male.jpg)"></div>
-   <div class="icon" style="background-image:url(https://wow.zamimg.com/images/wow/icons/large/class_${e.class.toLowerCase()}.jpg)"></div>
+/* LIVE ENTRIES */
+onSnapshot(collection(db,"entries"),snap=>{
+ list.innerHTML="";
+ snap.forEach(d=>{
+  const e=d.data();
+  const div=document.createElement("div");
+  div.className="entry";
+  div.style.borderLeftColor="#c9a44c";
+  div.innerHTML=`
+   <div class="icon" style="background-image:url(${raceIcons[e.race]})"></div>
+   <div class="icon" style="background-image:url(${classIcons[e.class]})"></div>
    <div><b>${e.name}</b><br>${e.race} / ${e.class}<br><small>${e.crime}</small></div>
    <div class="voteBox">
-    <div class="voteRow">
-     <span onclick="vote('${d.id}','up')" class="voteBtn">👍</span>${e.up}
-     <span onclick="vote('${d.id}','down')" class="voteBtn">👎</span>${e.down}
-    </div>
+     <span class="voteBtn">👍 ${e.up||0}</span><br>
+     <span class="voteBtn">👎 ${e.down||0}</span>
    </div>`;
-   list.appendChild(div);
-  });
+  list.appendChild(div);
  });
-}
-
-window.vote=async(id,type)=>{
- const u=auth.currentUser;if(!u)return;
- const vRef=doc(db,"entries",id,"votes",u.uid);
- const eRef=doc(db,"entries",id);
- const s=await getDoc(vRef);
- if(s.exists())return;
- await setDoc(vRef,{type});
- await updateDoc(eRef,{[type]:increment(1)});
- (type==="up"?soundUp:soundDown).play();
-};
-
-async function loadPending(){
- const s=await getDocs(collection(db,"users"));
- adminPanel.style.display="block";
- pendingList.innerHTML="";
- s.forEach(d=>{
-  if(d.data().role==="pending"){
-   pendingList.innerHTML+=`${d.data().email} <button onclick="approve('${d.id}')">✔</button><br>`;
-  }
- });
-}
-window.approve=uid=>updateDoc(doc(db,"users",uid),{role:"user"}).then(loadPending);
+});
 </script>
 </body>
 </html>

@@ -89,7 +89,15 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebas
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, getDocs, updateDoc, deleteDoc, setDoc, increment } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-const firebaseConfig={apiKey:"DEIN_API_KEY",authDomain:"DEIN_PROJECT.firebaseapp.com",projectId:"DEIN_PROJECT_ID",appId:"DEINE_APP_ID"};
+// Firebase config
+const firebaseConfig={
+  apiKey:"AIzaSyBOko8Wg-jCvz7aRPleNcbJCm8u2CYtjps",
+  authDomain:"wow-hs-liste.firebaseapp.com",
+  projectId:"wow-hs-liste",
+  storageBucket:"wow-hs-liste.appspot.com",
+  messagingSenderId:"180764359810",
+  appId:"1:180764359810:web:03cef19546dcc32081889b"
+};
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -132,7 +140,7 @@ let entries=[];
 // REGISTER
 document.getElementById("registerBtn").onclick=async()=>{
   try{
-    const cred = await createUserWithEmailAndPassword(auth,email.value,password.value);
+    const cred=await createUserWithEmailAndPassword(auth,email.value,password.value);
     await setDoc(doc(db,"users",cred.user.uid),{email:email.value,role:"pending"});
     alert("Registriert – Admin muss freischalten");
     signOut(auth);
@@ -146,7 +154,7 @@ document.getElementById("logoutBtn").onclick = ()=>signOut(auth);
 // AUTH STATE
 onAuthStateChanged(auth,async user=>{
   if(!user){loginPanel.style.display="block";mainContent.style.display="none";return;}
-  const snap = await getDoc(doc(db,"users",user.uid));
+  const snap=await getDoc(doc(db,"users",user.uid));
   if(!snap.exists()||snap.data().role==="pending"){alert("Noch nicht freigeschaltet");signOut(auth);return;}
   loginPanel.style.display="none";mainContent.style.display="block";
   if(snap.data().role==="admin"){adminPanel.style.display="block";loadPending();} else {adminPanel.style.display="none";}
@@ -191,10 +199,9 @@ async function render(){
   const fC=filterClass.value;
   for(const e of entries){
     if((fR && e.race!==fR)||(fC && e.class!==fC)||!(e.name+e.race+e.class+e.crime).toLowerCase().includes(s)) continue;
-    const voteRef=doc(db,"entries",e.id,"votes",user?user.uid:"");
     let voteType=null;
     if(user){
-      const vSnap=await getDoc(voteRef);
+      const vSnap=await getDoc(doc(db,"entries",e.id,"votes",user.uid));
       if(vSnap.exists()) voteType=vSnap.data().type;
     }
     const div=document.createElement("div");
@@ -243,12 +250,7 @@ window.vote=async(id,type)=>{
   const entryRef=doc(db,"entries",id);
   const snap=await getDoc(voteRef);
   if(!snap.exists()){await setDoc(voteRef,{type});await updateDoc(entryRef,{[type==="up"?"upvotes":"downvotes"]:increment(1)});}
-  else{
-    const old=snap.data().type;
-    if(old===type)return;
-    await updateDoc(voteRef,{type});
-    await updateDoc(entryRef,{[old==="up"?"upvotes":"downvotes"]:increment(-1),[type==="up"?"upvotes":"downvotes"]:increment(1)});
-  }
+  else{const old=snap.data().type;if(old===type)return;await updateDoc(voteRef,{type});await updateDoc(entryRef,{[old==="up"?"upvotes":"downvotes"]:increment(-1),[type==="up"?"upvotes":"downvotes"]:increment(1)});}
   render();
 };
 

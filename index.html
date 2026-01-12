@@ -97,9 +97,8 @@ button:hover{filter:brightness(1.15)}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc, getDoc, updateDoc, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc, getDoc, updateDoc, increment, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-// Firebase Config
 const firebaseConfig={
   apiKey:"AIzaSyBOko8Wg-jCvz7aRPleNcbJCm8u2CYtjps",
   authDomain:"wow-hs-liste.firebaseapp.com",
@@ -151,7 +150,7 @@ const fill=(id,arr)=>{const s=document.getElementById(id);arr.forEach(v=>{const 
 fill("race",races); fill("filterRace",races);
 fill("wowClass",classes); fill("filterClass",classes);
 
-// AUTH
+// Auth
 loginBtn.onclick=()=>signInWithEmailAndPassword(auth,email.value,password.value);
 registerBtn.onclick=async()=>{
   const c = await createUserWithEmailAndPassword(auth,email.value,password.value);
@@ -161,45 +160,46 @@ registerBtn.onclick=async()=>{
 logoutBtn.onclick=()=>signOut(auth);
 
 onAuthStateChanged(auth, async user=>{
-  if(!user){loginPanel.style.display="block"; mainContent.style.display="none"; return;}
-  const snap = await getDoc(doc(db,"users",user.uid));
-  if(!snap.exists() || snap.data().role==="pending"){alert("Noch nicht freigeschaltet"); signOut(auth); return;}
-  loginPanel.style.display="none"; mainContent.style.display="block";
+ if(!user){loginPanel.style.display="block"; mainContent.style.display="none"; return;}
+ const snap = await getDoc(doc(db,"users",user.uid));
+ if(!snap.exists() || snap.data().role==="pending"){alert("Noch nicht freigeschaltet"); signOut(auth); return;}
+ loginPanel.style.display="none"; mainContent.style.display="block";
+ if(snap.data().role==="admin") loadPending();
 });
 
-// ADD ENTRY
+// Add Entry
 addBtn.onclick=()=>addDoc(collection(db,"entries"),{
   name:name.value, race:race.value, class:wowClass.value, crime:crime.value,
   up:0, down:0, createdAt:serverTimestamp()
 });
 
-// LIVE ENTRIES
+// Live Entries
 onSnapshot(collection(db,"entries"), snap=>{
-  list.innerHTML="";
-  snap.forEach(d=>{
-    const e=d.data();
-    const div=document.createElement("div");
-    div.className="entry";
-    div.innerHTML=`
-      <div class="icon" style="background-image:url(${raceIcons[e.race]})"></div>
-      <div class="icon" style="background-image:url(${classIcons[e.class]})"></div>
-      <div><b>${e.name}</b><br>${e.race} / ${e.class}<br><small>${e.crime}</small></div>
-      <div class="voteBox">
-        <div class="voteRow">
-          <span class="voteBtn" onclick="vote('${d.id}','up', this)">👍 ${e.up||0}</span>
-          <span class="voteBtn" onclick="vote('${d.id}','down', this)">👎 ${e.down||0}</span>
-        </div>
-        <div class="editRow">
-          <button onclick="editEntry('${d.id}','${e.name}','${e.race}','${e.class}','${e.crime}')">✏️ Bearbeiten</button>
-          <button onclick="deleteEntry('${d.id}')">🗑 Löschen</button>
-        </div>
-      </div>
-    `;
-    list.appendChild(div);
-  });
+ list.innerHTML="";
+ snap.forEach(d=>{
+   const e=d.data();
+   const div=document.createElement("div");
+   div.className="entry";
+   div.innerHTML=`
+     <div class="icon" style="background-image:url(${raceIcons[e.race]})"></div>
+     <div class="icon" style="background-image:url(${classIcons[e.class]})"></div>
+     <div><b>${e.name}</b><br>${e.race} / ${e.class}<br><small>${e.crime}</small></div>
+     <div class="voteBox">
+       <div class="voteRow">
+         <span class="voteBtn" onclick="vote('${d.id}','up', this)">👍 ${e.up||0}</span>
+         <span class="voteBtn" onclick="vote('${d.id}','down', this)">👎 ${e.down||0}</span>
+       </div>
+       <div class="editRow">
+         <button onclick="editEntry('${d.id}','${e.name}','${e.race}','${e.class}','${e.crime}')">✏️ Bearbeiten</button>
+         <button onclick="deleteEntry('${d.id}')">🗑 Löschen</button>
+       </div>
+     </div>
+   `;
+   list.appendChild(div);
+ });
 });
 
-// VOTE
+// Voting
 window.vote=async(id,type,btn)=>{
   const user = auth.currentUser;
   if(!user){alert("Bitte einloggen"); return;}

@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>WoW Classic / TBC – Schandtatenliste</title>
+<title>WoW Classic / TBC – Gildenliste</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
 <style>
 body{margin:0;font-family:'Cinzel',serif;background:radial-gradient(circle at top,#2b1d0e,#0d0a06);color:#f5e6c8;}
@@ -31,9 +31,8 @@ button{cursor:pointer;background:linear-gradient(to bottom,#e0b75a,#8a6b2f);colo
 </head>
 <body>
 <div class="container">
-<h1>WoW Classic / TBC – Schandtatenliste</h1>
+<h1>WoW Classic / TBC – Gildenliste</h1>
 
-<!-- LOGIN PANEL -->
 <div id="loginPanel">
   <input type="email" id="email" placeholder="Email">
   <input type="password" id="password" placeholder="Passwort">
@@ -41,15 +40,16 @@ button{cursor:pointer;background:linear-gradient(to bottom,#e0b75a,#8a6b2f);colo
   <button id="loginBtn">Login</button>
 </div>
 
-<!-- MAIN CONTENT -->
 <div id="mainContent" style="display:none;">
   <div class="filters">
     <input id="search" placeholder="Suche...">
-    <select id="filterRace"><option value="">Alle Rassen</option>
+    <select id="filterRace">
+      <option value="">Alle Rassen</option>
       <option>Mensch</option><option>Zwerg</option><option>Nachtelf</option><option>Gnom</option><option>Draenei</option>
       <option>Ork</option><option>Troll</option><option>Tauren</option><option>Untoter</option><option>Blutelf</option>
     </select>
-    <select id="filterClass"><option value="">Alle Klassen</option>
+    <select id="filterClass">
+      <option value="">Alle Klassen</option>
       <option>Krieger</option><option>Paladin</option><option>Jäger</option><option>Schurke</option><option>Priester</option>
       <option>Schamane</option><option>Magier</option><option>Hexenmeister</option><option>Druide</option>
     </select>
@@ -76,7 +76,7 @@ button{cursor:pointer;background:linear-gradient(to bottom,#e0b75a,#8a6b2f);colo
     <button id="logoutBtn">Logout</button>
   </div>
 
-  <div id="list" class="list"></div>
+  <div id="list"></div>
 
   <div id="adminPanel">
     <h3>Pending-User Freischalten</h3>
@@ -171,7 +171,7 @@ document.getElementById("addBtn").onclick=async()=>{
   nameInput.value="";race.value="";wowClass.value="";crimeInput.value="";
 };
 
-// LOAD ENTRIES
+// LOAD & RENDER
 function loadEntries(){
   const q=query(collection(db,"entries"),orderBy("createdAt"));
   onSnapshot(q,snap=>{
@@ -180,24 +180,23 @@ function loadEntries(){
   });
 }
 
-// RENDER
+const search=document.getElementById("search"),filterRace=document.getElementById("filterRace"),filterClass=document.getElementById("filterClass");
+search.oninput=filterRace.onchange=filterClass.onchange=render;
+
 async function render(){
   list.innerHTML="";
   const user=auth.currentUser;
-  const s=document.getElementById("search").value.toLowerCase();
-  const filterR=document.getElementById("filterRace").value;
-  const filterC=document.getElementById("filterClass").value;
-
+  const s=search.value.toLowerCase();
+  const fR=filterRace.value;
+  const fC=filterClass.value;
   for(const e of entries){
-    if((filterR && e.race!==filterR)||(filterC && e.class!==filterC)||
-       !(e.name+e.race+e.class+e.crime).toLowerCase().includes(s)) continue;
-
+    if((fR && e.race!==fR)||(fC && e.class!==fC)||!(e.name+e.race+e.class+e.crime).toLowerCase().includes(s)) continue;
+    const voteRef=doc(db,"entries",e.id,"votes",user?user.uid:"");
     let voteType=null;
     if(user){
-      const vSnap=await getDoc(doc(db,"entries",e.id,"votes",user.uid));
+      const vSnap=await getDoc(voteRef);
       if(vSnap.exists()) voteType=vSnap.data().type;
     }
-
     const div=document.createElement("div");
     div.className="entry";
     div.style.borderLeftColor=initialClassData[e.class].color;
@@ -234,27 +233,21 @@ window.editEntry=async(id,name,raceVal,classVal,crime)=>{
     render();
   }
 };
-
-window.deleteEntry=async(id)=>{if(confirm("Eintrag löschen?")) await deleteDoc(doc(db,"entries",id));render();}
+window.deleteEntry=async(id)=>{if(confirm("Eintrag löschen?")) await deleteDoc(doc(db,"entries",id)); render();}
 
 // VOTE
 window.vote=async(id,type)=>{
   const user=auth.currentUser;
-  if(!user){alert("Bitte einloggen");return;}
+  if(!user){alert("Bitte einloggen"); return;}
   const voteRef=doc(db,"entries",id,"votes",user.uid);
   const entryRef=doc(db,"entries",id);
   const snap=await getDoc(voteRef);
-  if(!snap.exists()){
-    await setDoc(voteRef,{type});
-    await updateDoc(entryRef,{[type==="up"?"upvotes":"downvotes"]:increment(1)});
-  }else{
+  if(!snap.exists()){await setDoc(voteRef,{type});await updateDoc(entryRef,{[type==="up"?"upvotes":"downvotes"]:increment(1)});}
+  else{
     const old=snap.data().type;
-    if(old===type) return;
+    if(old===type)return;
     await updateDoc(voteRef,{type});
-    await updateDoc(entryRef,{
-      [old==="up"?"upvotes":"downvotes"]:increment(-1),
-      [type==="up"?"upvotes":"downvotes"]:increment(1)
-    });
+    await updateDoc(entryRef,{[old==="up"?"upvotes":"downvotes"]:increment(-1),[type==="up"?"upvotes":"downvotes"]:increment(1)});
   }
   render();
 };

@@ -7,7 +7,7 @@
 <style>
 body{
   margin:0;font-family:'Cinzel',serif;color:#f5e6c8;
-  background:url('https://www.google.com/url?sa=t&source=web&rct=j&url=https%3A%2F%2Fwall.alphacoders.com%2Fbig.php%3Fi%3D504724&ved=0CBYQjRxqFwoTCNiDkej8hZIDFQAAAAAdAAAAABAe&opi=89978449') no-repeat center center fixed;
+  background:url('https://i.imgur.com/7LzGxKb.jpg') no-repeat center center fixed;
   background-size:cover;
 }
 .container{
@@ -48,29 +48,24 @@ button:active{
 .form-buttons{display:flex;justify-content:center;gap:12px;margin-top:10px;}
 .list{margin-top:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:15px;max-height:600px;overflow-y:auto;}
 .entry{
-  display:flex;flex-direction:column;background:linear-gradient(180deg,#1a1208,#0d0904);
+  display:flex;align-items:center;gap:12px;background:linear-gradient(180deg,#1a1208,#0d0904);
   border:2px solid #8c6a32;border-left:8px solid;border-radius:12px;padding:12px;
-  box-shadow:0 6px 12px rgba(0,0,0,0.7);transition:transform 0.2s,box-shadow 0.2s;position:relative;
+  box-shadow:0 6px 12px rgba(0,0,0,0.7);position:relative;
 }
-.entry:hover{transform:translateY(-4px);box-shadow:0 12px 24px rgba(0,0,0,0.9);}
-.entry-top{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
-.icon{width:44px;height:44px;background-size:cover;background-position:center;border:2px solid #c9a44c;border-radius:6px;}
-.entry-body{flex:1;color:#f5e6c8;}
+.entry-left{
+  display:flex;align-items:center;gap:8px;
+}
+.entry-body{
+  display:flex;flex-direction:column;gap:2px;
+}
 .entry-body strong{font-size:1.1em;}
 .voteBox{display:flex;align-items:center;justify-content:flex-end;gap:6px;position:absolute;top:10px;right:10px;}
-.voteBtn{
-  font-size:22px;cursor:pointer;
-  color:#f5e6c8;text-shadow:1px 1px 0 #000;
-  background:#3e2d0c;border:2px solid #ffd36a;border-radius:6px;
-  padding:2px 6px;transition:all .2s;
-}
+.voteBtn{font-size:22px;cursor:pointer;color:#f5e6c8;text-shadow:1px 1px 0 #000;background:#3e2d0c;border:2px solid #ffd36a;border-radius:6px;padding:2px 6px;transition:all .2s;}
 .voteBtn.active.up{color:#4CAF50;}
 .voteBtn.active.down{color:#E53935;}
 .voteBtn:hover{transform:scale(1.2);}
 .voteCount{min-width:20px;text-align:center;}
-.entry-actions{
-  display:flex;justify-content:flex-end;gap:6px;margin-top:8px;
-}
+.entry-actions{display:flex;justify-content:flex-end;gap:6px;margin-top:8px;}
 .entry-actions button{
   font-size:0.8em;
   padding:4px 8px;
@@ -277,6 +272,7 @@ window.approveUser=async(uid)=>{await updateDoc(doc(db,"users",uid),{role:"user"
 </div>
 </body>
 </html>
+
 
 
 

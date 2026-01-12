@@ -125,27 +125,27 @@ const db=getFirestore(app);
 
 // --- Klassen & Rassen + Icons ---
 const initialClassData={
-  Krieger:{color:"#C79C6E",icon:"https://wow.zamimg.com/images/wow/icons/large/class_warrior.jpg"},
-  Magier:{color:"#69CCF0",icon:"https://wow.zamimg.com/images/wow/icons/large/class_mage.jpg"},
-  Priester:{color:"#FFFFFF",icon:"https://wow.zamimg.com/images/wow/icons/large/class_priest.jpg"},
-  Schurke:{color:"#FFF569",icon:"https://wow.zamimg.com/images/wow/icons/large/class_rogue.jpg"},
-  Jäger:{color:"#ABD473",icon:"https://wow.zamimg.com/images/wow/icons/large/class_hunter.jpg"},
-  Hexenmeister:{color:"#9482C9",icon:"https://wow.zamimg.com/images/wow/icons/large/class_warlock.jpg"},
-  Druide:{color:"#FF7D0A",icon:"https://wow.zamimg.com/images/wow/icons/large/class_druid.jpg"},
-  Paladin:{color:"#F58CBA",icon:"https://wow.zamimg.com/images/wow/icons/large/class_paladin.jpg"},
-  Schamane:{color:"#0070DE",icon:"https://wow.zamimg.com/images/wow/icons/large/class_shaman.jpg"}
+Krieger:{color:"#C79C6E",icon:"https://wow.zamimg.com/images/wow/icons/large/class_warrior.jpg"},
+Magier:{color:"#69CCF0",icon:"https://wow.zamimg.com/images/wow/icons/large/class_mage.jpg"},
+Priester:{color:"#FFFFFF",icon:"https://wow.zamimg.com/images/wow/icons/large/class_priest.jpg"},
+Schurke:{color:"#FFF569",icon:"https://wow.zamimg.com/images/wow/icons/large/class_rogue.jpg"},
+Jäger:{color:"#ABD473",icon:"https://wow.zamimg.com/images/wow/icons/large/class_hunter.jpg"},
+Hexenmeister:{color:"#9482C9",icon:"https://wow.zamimg.com/images/wow/icons/large/class_warlock.jpg"},
+Druide:{color:"#FF7D0A",icon:"https://wow.zamimg.com/images/wow/icons/large/class_druid.jpg"},
+Paladin:{color:"#F58CBA",icon:"https://wow.zamimg.com/images/wow/icons/large/class_paladin.jpg"},
+Schamane:{color:"#0070DE",icon:"https://wow.zamimg.com/images/wow/icons/large/class_shaman.jpg"}
 };
 const raceIcons={
-  Mensch:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_human_male.jpg",
-  Zwerg:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_dwarf_male.jpg",
-  Nachtelf:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_nightelf_male.jpg",
-  Gnom:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_gnome_male.jpg",
-  Draenei:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_draenei_male.jpg",
-  Ork:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_orc_male.jpg",
-  Troll:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_troll_male.jpg",
-  Tauren:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_tauren_male.jpg",
-  Untoter:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_undead_male.jpg",
-  Blutelf:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_bloodelf_male.jpg"
+Mensch:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_human_male.jpg",
+Zwerg:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_dwarf_male.jpg",
+Nachtelf:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_nightelf_male.jpg",
+Gnom:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_gnome_male.jpg",
+Draenei:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_draenei_male.jpg",
+Ork:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_orc_male.jpg",
+Troll:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_troll_male.jpg",
+Tauren:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_tauren_male.jpg",
+Untoter:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_undead_male.jpg",
+Blutelf:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_bloodelf_male.jpg"
 };
 
 // --- DOM ---
@@ -234,6 +234,7 @@ window.approveUser=async(uid)=>{await updateDoc(doc(db,"users",uid),{role:"user"
 </div>
 </body>
 </html>
+
 
 
 

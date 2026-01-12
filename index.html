@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>WoW Classic / TBC – Schandtatenliste</title>
+<title>WoW Classic / TBC – Hurensohnliste</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
 <style>
 body{
@@ -41,7 +41,7 @@ h1{
   position:relative;
 }
 h1::after{
-  content:'Schande den Feigen!';
+  content:'Schande den Hurensöhnen!';
   display:block;
   font-size:0.5em;
   color:#d4af37;
@@ -493,15 +493,15 @@ button:hover{transform:translateY(-3px) scale(1.02);}
     <input type="email" id="email" placeholder="Email-Adresse"><br><br>
     <input type="password" id="password" placeholder="Passwort"><br><br>
     <div class="form-buttons">
-      <button id="registerBtn" class="btn-wow">In die Reihen</button>
-      <button id="loginBtn" class="btn-wow">Kampf beitreten</button>
+      <button id="registerBtn" class="btn-wow">Registieren</button>
+      <button id="loginBtn" class="btn-wow">Login</button>
     </div>
   </div>
 
   <!-- HAUPTINHALT -->
   <div id="mainContent" style="display:none;">
     <div class="filters">
-      <input id="search" placeholder="Suche nach Namen oder Schandtaten...">
+      <input id="search" placeholder="Namen oder Schandtat...">
       <select id="filterRace">
         <option value="">🏰 Alle Rassen</option>
         <option>Mensch</option><option>Zwerg</option><option>Nachtelf</option>
@@ -540,14 +540,14 @@ button:hover{transform:translateY(-3px) scale(1.02);}
     </div>
     <div class="form-buttons">
       <button id="addBtn" class="btn-wow">Schandtat melden</button>
-      <button id="logoutBtn" class="btn-wow">Rückzug</button>
+      <button id="logoutBtn" class="btn-wow">Ausloggen</button>
     </div>
 
     <div id="list"></div>
 
     <!-- ADMIN PANEL -->
     <div id="adminPanel">
-      <h3 style="color:#ffd36a;margin:0 0 20px 0;text-shadow:2px 2px 4px black;">⛨ Hochrangige Rekruten freischalten</h3>
+      <h3 style="color:#ffd36a;margin:0 0 20px 0;text-shadow:2px 2px 4px black;">⛨ Rekruten freischalten</h3>
       <div id="pendingList"></div>
     </div>
 
@@ -808,7 +808,7 @@ function renderEntries() {
 async function vote(id, type) {
   const user = auth.currentUser;
   if(!user) {
-    alert("⚔️ Tritt der Allianz/Horde bei! (Login erforderlich)");
+    alert("⚔️ Tritt der Horde bei! (Login erforderlich)");
     return;
   }
   
@@ -853,8 +853,8 @@ function showEditModal(data) {
       </select>
       <textarea id="editCrime" placeholder="Die Schandtat beschreiben...">${data.crime}</textarea>
       <div class="modal-buttons">
-        <button class="btn-wow" onclick="saveEdit('${data.id}')">💾 Speichern</button>
-        <button class="btn-action btn-danger" onclick="document.querySelector('.modal').remove()">❌ Abbrechen</button>
+        <button class="btn-wow" onclick="saveEdit('${data.id}')">💾</button>
+        <button class="btn-action btn-danger" onclick="document.querySelector('.modal').remove()">❌</button>
       </div>
     </div>
   `;
@@ -955,3 +955,4 @@ window.approveUser = async function(uid) {
 </script>
 </body>
 </html>
+

@@ -189,20 +189,43 @@ function listenToUserVotes(){
 function render(){
   listEl.innerHTML="";
   const s = searchInput.value.toLowerCase();
+
   for(const e of entries){
-    if((filterRace.value && e.race!==filterRace.value) || (filterClass.value && e.class!==filterClass.value) || !(e.name+e.race+e.class+e.crime).toLowerCase().includes(s)) continue;
+
+    if (
+      (filterRace.value && e.race !== filterRace.value) ||
+      (filterClass.value && e.class !== filterClass.value) ||
+      !(e.name + e.race + e.class + e.crime).toLowerCase().includes(s)
+    ) continue;
+
+    // 🔒 SAFE CLASS DATA (Crash-Fix)
+    const classData = initialClassData[e.class] || {
+      color: "#777",
+      icon: "",
+      role: "?"
+    };
+
     const voteType = userVotes[e.id];
-    const div=document.createElement("div");
-    div.className="entry";
-    div.style.borderLeftColor=initialClassData[e.class].color;
-    div.innerHTML=`
-      <div><strong>${e.name}</strong><br>${e.race}/${e.class}<br>${e.crime}</div>
+
+    const div = document.createElement("div");
+    div.className = "entry";
+    div.style.borderLeftColor = classData.color;
+
+    div.innerHTML = `
+      <div class="icon" style="background-image:url(${classData.icon})"></div>
+      <div>
+        <strong>${e.name || "Unbekannt"}</strong><br>
+        ${e.race || "?"} / ${e.class || "?"}<br>
+        <small>${e.crime || ""}</small>
+      </div>
       <div class="voteBox">
         <span class="voteBtn ${voteType==="up"?"active up":""}" onclick="vote('${e.id}','up')">👍</span>
-        ${e.upvotes}
+        <span class="voteCount">${e.upvotes ?? 0}</span>
         <span class="voteBtn ${voteType==="down"?"active down":""}" onclick="vote('${e.id}','down')">👎</span>
-        ${e.downvotes}
-      </div>`;
+        <span class="voteCount">${e.downvotes ?? 0}</span>
+      </div>
+    `;
+
     listEl.appendChild(div);
   }
 }
@@ -246,5 +269,6 @@ searchInput.oninput=filterRace.onchange=filterClass.onchange=render;
 </div>
 </body>
 </html>
+
 
 

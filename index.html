@@ -68,75 +68,85 @@ button{cursor:pointer; background:linear-gradient(to bottom,#e0b75a,#8a6b2f); co
     <div id="pendingList"></div>
   </div>
 </div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, getDoc, getDocs, updateDoc, deleteDoc, setDoc, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-/* Firebase Config */
+/* FIREBASE */
 const firebaseConfig = {
-apiKey: "AIzaSyBOko8Wg-jCvz7aRPleNcbJCm8u2CYtjps",
-authDomain: "wow-hs-liste.firebaseapp.com",
-projectId: "wow-hs-liste",
-storageBucket: "wow-hs-liste.firebasestorage.app",
-messagingSenderId: "180764359810",
-appId: "1:180764359810:web:03cef19546dcc32081889b"
+  apiKey: "AIzaSyBOko8Wg-jCvz7aRPleNcbJCm8u2CYtjps",
+  authDomain: "wow-hs-liste.firebaseapp.com",
+  projectId: "wow-hs-liste",
+  storageBucket: "wow-hs-liste.firebasestorage.app",
+  messagingSenderId: "180764359810",
+  appId: "1:180764359810:web:03cef19546dcc32081889b"
 };
-
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* Klassen / Rassen */
-const initialClassData = { /* wie vorher */ };
-const raceIcons = { /* wie vorher */ };
+/* DATA */
+let entries = [];
+let userVotes = {};
+let voteUnsubscribers = {};
 
 /* DOM */
-const emailInput=document.getElementById("emailInput");
-const passwordInput=document.getElementById("passwordInput");
-const loginPanel=document.getElementById("loginPanel");
-const mainContent=document.getElementById("mainContent");
-const nameInput=document.getElementById("nameInput");
-const raceInput=document.getElementById("raceInput");
-const classInput=document.getElementById("classInput");
-const crimeInputEl=document.getElementById("crimeInput");
-const listEl=document.getElementById("list");
-const searchInput=document.getElementById("searchInput");
-const filterRace=document.getElementById("filterRace");
-const filterClass=document.getElementById("filterClass");
-const adminPanel=document.getElementById("adminPanel");
-const pendingList=document.getElementById("pendingList");
+const emailInput = document.getElementById("emailInput");
+const passwordInput = document.getElementById("passwordInput");
+const loginPanel = document.getElementById("loginPanel");
+const mainContent = document.getElementById("mainContent");
+const nameInput = document.getElementById("nameInput");
+const raceInput = document.getElementById("raceInput");
+const classInput = document.getElementById("classInput");
+const crimeInputEl = document.getElementById("crimeInput");
+const listEl = document.getElementById("list");
+const searchInput = document.getElementById("searchInput");
+const filterRace = document.getElementById("filterRace");
+const filterClass = document.getElementById("filterClass");
+const adminPanel = document.getElementById("adminPanel");
+const pendingList = document.getElementById("pendingList");
 
-/* REGISTER */
-document.getElementById("registerBtn").onclick=async()=>{
-  try{
-    const cred=await createUserWithEmailAndPassword(auth,emailInput.value,passwordInput.value);
-    await setDoc(doc(db,"users",cred.user.uid),{email:emailInput.value,role:"pending"});
-    alert("Registriert – Admin muss freischalten"); signOut(auth);
-  }catch(e){alert(e.message);}
+/* CLASS DATA */
+const initialClassData = {
+  Krieger:{color:"#C79C6E",role:"Tank",icon:"https://wow.zamimg.com/images/wow/icons/large/class_warrior.jpg"},
+  Magier:{color:"#69CCF0",role:"DPS",icon:"https://wow.zamimg.com/images/wow/icons/large/class_mage.jpg"},
+  Priester:{color:"#FFFFFF",role:"Heal",icon:"https://wow.zamimg.com/images/wow/icons/large/class_priest.jpg"},
+  Schurke:{color:"#FFF569",role:"DPS",icon:"https://wow.zamimg.com/images/wow/icons/large/class_rogue.jpg"},
+  Jäger:{color:"#ABD473",role:"DPS",icon:"https://wow.zamimg.com/images/wow/icons/large/class_hunter.jpg"},
+  Hexenmeister:{color:"#9482C9",role:"DPS",icon:"https://wow.zamimg.com/images/wow/icons/large/class_warlock.jpg"},
+  Druide:{color:"#FF7D0A",role:"Heal",icon:"https://wow.zamimg.com/images/wow/icons/large/class_druid.jpg"},
+  Paladin:{color:"#F58CBA",role:"Heal/DPS",icon:"https://wow.zamimg.com/images/wow/icons/large/class_paladin.jpg"},
+  Schamane:{color:"#0070DE",role:"Heal/DPS",icon:"https://wow.zamimg.com/images/wow/icons/large/class_shaman.jpg"}
 };
 
-/* LOGIN/LOGOUT */
-document.getElementById("loginBtn").onclick=()=>signInWithEmailAndPassword(auth,emailInput.value,passwordInput.value).catch(e=>alert(e.message));
-document.getElementById("logoutBtn").onclick=()=>signOut(auth);
+/* REGISTER */
+document.getElementById("registerBtn").onclick = async ()=>{
+  const cred = await createUserWithEmailAndPassword(auth,emailInput.value,passwordInput.value);
+  await setDoc(doc(db,"users",cred.user.uid),{email:emailInput.value,role:"pending"});
+  alert("Registriert – Admin muss freischalten");
+  signOut(auth);
+};
 
-/* AUTH STATE */
-let entries=[];
+/* LOGIN / LOGOUT */
+document.getElementById("loginBtn").onclick = ()=>signInWithEmailAndPassword(auth,emailInput.value,passwordInput.value);
+document.getElementById("logoutBtn").onclick = ()=>signOut(auth);
+
+/* AUTH */
 onAuthStateChanged(auth, async user=>{
   if(!user){loginPanel.style.display="block"; mainContent.style.display="none"; return;}
   const snap = await getDoc(doc(db,"users",user.uid));
-  if(!snap.exists()||snap.data().role==="pending"){alert("Noch nicht freigeschaltet"); signOut(auth); return;}
+  if(!snap.exists() || snap.data().role==="pending"){alert("Noch nicht freigeschaltet"); signOut(auth); return;}
   loginPanel.style.display="none"; mainContent.style.display="block";
-  if(snap.data().role==="admin"){adminPanel.style.display="block"; loadPending();} else{adminPanel.style.display="none";}
+  if(snap.data().role==="admin"){adminPanel.style.display="block"; loadPending();}
   loadEntries();
 });
 
 /* ADD ENTRY */
-document.getElementById("addBtn").onclick=async()=>{
-  const user=auth.currentUser;
-  if(!user||!nameInput.value||!raceInput.value||!classInput.value||!crimeInputEl.value){alert("Alle Felder ausfüllen"); return;}
+document.getElementById("addBtn").onclick = async ()=>{
+  const user = auth.currentUser;
+  if(!user || !nameInput.value || !raceInput.value || !classInput.value || !crimeInputEl.value) return;
   await addDoc(collection(db,"entries"),{
     uid:user.uid,
     name:nameInput.value,
@@ -148,46 +158,87 @@ document.getElementById("addBtn").onclick=async()=>{
     downvotes:0,
     createdAt:serverTimestamp()
   });
-  nameInput.value = raceInput.value = classInput.value = crimeInputEl.value = "";
+  nameInput.value=raceInput.value=classInput.value=crimeInputEl.value="";
 };
 
-/* LOAD / RENDER */
-function loadEntries(){onSnapshot(query(collection(db,"entries"),orderBy("createdAt")),snap=>{entries=snap.docs.map(d=>({id:d.id,...d.data()})); render();});}
-async function render(){
-  listEl.innerHTML=""; const user=auth.currentUser; const s=searchInput.value.toLowerCase();
+/* LIVE ENTRIES */
+function loadEntries(){
+  const q = query(collection(db,"entries"),orderBy("createdAt","desc"));
+  onSnapshot(q,snap=>{
+    entries = snap.docs.map(d=>({id:d.id,...d.data()}));
+    listenToUserVotes();
+    render();
+  });
+}
+
+/* LIVE USER VOTES */
+function listenToUserVotes(){
+  const user = auth.currentUser;
+  if(!user) return;
+  entries.forEach(e=>{
+    if(voteUnsubscribers[e.id]) return;
+    const voteRef = doc(db,"entries",e.id,"votes",user.uid);
+    voteUnsubscribers[e.id] = onSnapshot(voteRef,snap=>{
+      userVotes[e.id] = snap.exists()?snap.data().type:null;
+      render();
+    });
+  });
+}
+
+/* RENDER */
+function render(){
+  listEl.innerHTML="";
+  const s = searchInput.value.toLowerCase();
   for(const e of entries){
-    if((filterRace.value&&e.race!==filterRace.value)||(filterClass.value&&e.class!==filterClass.value)||!(e.name+e.race+e.class+e.crime).toLowerCase().includes(s)) continue;
-    let voteType=null; if(user){const vSnap=await getDoc(doc(db,"entries",e.id,"votes",user.uid)); if(vSnap.exists()) voteType=vSnap.data().type;}
-    const div=document.createElement("div"); div.className="entry"; div.style.borderLeftColor=initialClassData[e.class].color;
+    if((filterRace.value && e.race!==filterRace.value) || (filterClass.value && e.class!==filterClass.value) || !(e.name+e.race+e.class+e.crime).toLowerCase().includes(s)) continue;
+    const voteType = userVotes[e.id];
+    const div=document.createElement("div");
+    div.className="entry";
+    div.style.borderLeftColor=initialClassData[e.class].color;
     div.innerHTML=`
-      <div class="icon" style="background-image:url(${raceIcons[e.race]||""})"></div>
-      <div class="icon" style="background-image:url(${initialClassData[e.class].icon||""})"></div>
-      <div><strong>${e.name}</strong><br>${e.race} / ${e.class}<br><small>Schandtat: ${e.crime}</small></div>
+      <div><strong>${e.name}</strong><br>${e.race}/${e.class}<br>${e.crime}</div>
       <div class="voteBox">
         <span class="voteBtn ${voteType==="up"?"active up":""}" onclick="vote('${e.id}','up')">👍</span>
-        <span class="voteCount">${e.upvotes||0}</span>
+        ${e.upvotes}
         <span class="voteBtn ${voteType==="down"?"active down":""}" onclick="vote('${e.id}','down')">👎</span>
-        <span class="voteCount">${e.downvotes||0}</span>
-      </div>
-      <button onclick="editEntry('${e.id}','${e.name}','${e.race}','${e.class}','${e.crime}')">✏️</button>
-      <button onclick="deleteEntry('${e.id}')">🗑</button>
-    `;
+        ${e.downvotes}
+      </div>`;
     listEl.appendChild(div);
   }
 }
 
-/* EDIT / DELETE / VOTE */
-window.editEntry=async(id,name,raceVal,classVal,crime)=>{
-  const newName=prompt("Neuer Name:",name); const newRace=prompt("Neue Rasse:",raceVal);
-  const newClass=prompt("Neue Klasse:",classVal); const newCrime=prompt("Neue Schandtat:",crime);
-  if(newName&&newRace&&newClass&&newCrime){await updateDoc(doc(db,"entries",id),{name:newName,race:newRace,class:newClass,crime:newCrime,role:initialClassData[newClass].role}); render();}
+/* VOTE */
+window.vote = async (id,type)=>{
+  const user=auth.currentUser;
+  if(!user) return;
+  const voteRef=doc(db,"entries",id,"votes",user.uid);
+  const entryRef=doc(db,"entries",id);
+  const snap=await getDoc(voteRef);
+  if(!snap.exists()){
+    await setDoc(voteRef,{type});
+    await updateDoc(entryRef,{[type==="up"?"upvotes":"downvotes"]:increment(1)});
+  }else{
+    const old=snap.data().type;
+    if(old===type) return;
+    await updateDoc(voteRef,{type});
+    await updateDoc(entryRef,{
+      [old==="up"?"upvotes":"downvotes"]:increment(-1),
+      [type==="up"?"upvotes":"downvotes"]:increment(1)
+    });
+  }
 };
-window.deleteEntry=async(id)=>{if(confirm("Eintrag löschen?")) await deleteDoc(doc(db,"entries",id)); render();}
-window.vote=async(id,type)=>{const user=auth.currentUser;if(!user){alert("Bitte einloggen"); return;} const voteRef=doc(db,"entries",id,"votes",user.uid); const entryRef=doc(db,"entries",id); const snap=await getDoc(voteRef); if(!snap.exists()){await setDoc(voteRef,{type}); await updateDoc(entryRef,{[type==="up"?"upvotes":"downvotes"]:increment(1)});} else {const old=snap.data().type;if(old===type) return; await updateDoc(voteRef,{type}); await updateDoc(entryRef,{[old==="up"?"upvotes":"downvotes"]:increment(-1),[type==="up"?"upvotes":"downvotes"]:increment(1)});} render();};
 
 /* ADMIN */
-async function loadPending(){pendingList.innerHTML=""; const snaps=await getDocs(collection(db,"users")); snaps.forEach(d=>{const u=d.data(); if(u.role==="pending"){const div=document.createElement("div"); div.className="adminUser"; div.innerHTML=`${u.email} <button onclick="approveUser('${d.id}')">Freischalten</button>`; pendingList.appendChild(div);}});}
-window.approveUser=async(uid)=>{await updateDoc(doc(db,"users",uid),{role:"user"}); loadPending();}
+async function loadPending(){
+  pendingList.innerHTML="";
+  const snaps=await getDocs(collection(db,"users"));
+  snaps.forEach(d=>{
+    if(d.data().role==="pending"){
+      pendingList.innerHTML+=`${d.data().email} <button onclick="approveUser('${d.id}')">Freischalten</button><br>`;
+    }
+  });
+}
+window.approveUser=async(uid)=>{await updateDoc(doc(db,"users",uid),{role:"user"}); loadPending();};
 
 /* FILTERS */
 searchInput.oninput=filterRace.onchange=filterClass.onchange=render;
@@ -195,4 +246,5 @@ searchInput.oninput=filterRace.onchange=filterClass.onchange=render;
 </div>
 </body>
 </html>
+
 

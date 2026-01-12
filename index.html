@@ -110,8 +110,11 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 // Sounds über zuverlässige CDN
-const soundUp = new Audio("https://raw.githubusercontent.com/johndoe/wow-sounds/main/level-up.mp3");
-const soundDown = new Audio("https://raw.githubusercontent.com/johndoe/wow-sounds/main/fail.mp3");
+// Up-Vote Sound
+const soundUp = new Audio("https://freesound.org/data/previews/341/341695_6242730-lq.mp3");
+
+// Down-Vote Sound
+const soundDown = new Audio("https://freesound.org/data/previews/341/341696_6242730-lq.mp3");
 
 // Klassen & Rassen
 /* ICONS */
@@ -252,4 +255,5 @@ window.approve=uid=>updateDoc(doc(db,"users",uid),{role:"user"}).then(loadPendin
 </script>
 </body>
 </html>
+
 

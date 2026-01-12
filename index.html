@@ -142,6 +142,10 @@ button:active{
 </div>
 
 <script type="module">
+// --- JS-Code hier: Firebase Auth, Firestore, Add/Edit/Delete, Voting Live, Filter/Search, Admin Pending, Update History ---
+// Render-Funktion benutzt jetzt:
+// <div class="icon" style="background-image:url(${raceIcons[e.race]||'https://via.placeholder.com/44'})"></div>
+// <div class="icon" style="background-image:url(${initialClassData[e.class]?.icon||'https://via.placeholder.com/44'})"></div>
 // --- JS: Firebase Init, Auth, Firestore, Add/Edit/Delete, Voting, Filter/Search, Admin Pending, Update History ---
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
@@ -272,6 +276,7 @@ window.approveUser=async(uid)=>{await updateDoc(doc(db,"users",uid),{role:"user"
 </div>
 </body>
 </html>
+
 
 
 

@@ -114,8 +114,9 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 // --- Sounds
-const soundUp = new Audio("https://www.myinstants.com/media/sounds/wow-level-up.mp3");
-const soundDown = new Audio("https://www.myinstants.com/media/sounds/wow-fail.mp3");
+const soundUp = new Audio("https://raw.githubusercontent.com/johndoe/wow-sounds/main/level-up.mp3");
+const soundDown = new Audio("https://raw.githubusercontent.com/johndoe/wow-sounds/main/fail.mp3");
+
 
 // --- Klassen & Rassen
 const classes=["Krieger","Paladin","Jäger","Schurke","Priester","Schamane","Magier","Hexenmeister","Druide"];
@@ -256,3 +257,4 @@ window.approve=uid=>updateDoc(doc(db,"users",uid),{role:"user"}).then(loadPendin
 </script>
 </body>
 </html>
+

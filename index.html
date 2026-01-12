@@ -42,7 +42,6 @@ button:hover{filter:brightness(1.15);}
 <div class="container">
 <h1>WoW Classic / TBC – Schandtatenliste</h1>
 
-<!-- LOGIN PANEL -->
 <div id="loginPanel">
   <input id="email" placeholder="Email"><br><br>
   <input id="password" type="password" placeholder="Passwort"><br><br>
@@ -50,9 +49,7 @@ button:hover{filter:brightness(1.15);}
   <button id="registerBtn">Registrieren</button>
 </div>
 
-<!-- MAIN CONTENT -->
 <div id="mainContent">
-
 <div class="filters">
   <input id="search" placeholder="Suche">
   <select id="filterRace"><option value="">Alle Rassen</option></select>
@@ -91,16 +88,14 @@ button:hover{filter:brightness(1.15);}
     <li>1.4 – Voting-Fix: maximal 1 Vote pro User</li>
   </ul>
 </div>
-
-</div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc, getDoc, updateDoc, increment, serverTimestamp, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-// --- Firebase config ---
+// Firebase
 const firebaseConfig={
   apiKey:"AIzaSyBOko8Wg-jCvz7aRPleNcbJCm8u2CYtjps",
   authDomain:"wow-hs-liste.firebaseapp.com",
@@ -109,18 +104,18 @@ const firebaseConfig={
   messagingSenderId:"180764359810",
   appId:"1:180764359810:web:03cef19546dcc32081889b"
 };
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
 
-// --- Sounds ---
-const soundUp = new Audio("https://freesound.org/data/previews/341/341695_6242730-lq.mp3");
-const soundDown = new Audio("https://freesound.org/data/previews/341/341696_6242730-lq.mp3");
+// Sounds
+const soundUp=new Audio("https://freesound.org/data/previews/341/341695_6242730-lq.mp3");
+const soundDown=new Audio("https://freesound.org/data/previews/341/341696_6242730-lq.mp3");
 
-// --- Klassen & Rassen ---
+// Klassen & Rassen
 const classes=["Krieger","Paladin","Jäger","Schurke","Priester","Schamane","Magier","Hexenmeister","Druide"];
 const races=["Mensch","Zwerg","Nachtelf","Gnom","Draenei","Ork","Troll","Tauren","Untoter","Blutelf"];
-
+  
 const classIcons={
 Krieger:"https://wow.zamimg.com/images/wow/icons/large/class_warrior.jpg",
 Paladin:"https://wow.zamimg.com/images/wow/icons/large/class_paladin.jpg",
@@ -145,41 +140,41 @@ Tauren:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_taur
 Untoter:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_undead_male.jpg",
 Blutelf:"https://wow.zamimg.com/images/wow/icons/large/achievement_character_bloodelf_male.jpg"
 };
-
-// --- Fill Selects ---
+// Fülle Selects
 const fill=(id,arr)=>{const s=document.getElementById(id);arr.forEach(v=>{const o=document.createElement("option");o.value=o.text=v;s.appendChild(o);});};
 fill("race",races); fill("filterRace",races);
 fill("wowClass",classes); fill("filterClass",classes);
 
-// --- Auth ---
+// Auth
 loginBtn.onclick=()=>signInWithEmailAndPassword(auth,email.value,password.value);
 registerBtn.onclick=async()=>{
-  const c = await createUserWithEmailAndPassword(auth,email.value,password.value);
+  const c=await createUserWithEmailAndPassword(auth,email.value,password.value);
   await setDoc(doc(db,"users",c.user.uid),{email:email.value,role:"pending"});
   alert("Registriert – wartet auf Freigabe");
 };
 logoutBtn.onclick=()=>signOut(auth);
 
-// --- Auth-State ---
-onAuthStateChanged(auth, async user=>{
+// Auth-State
+onAuthStateChanged(auth,async user=>{
   if(!user){loginPanel.style.display="block"; mainContent.style.display="none"; return;}
-  const snap = await getDoc(doc(db,"users",user.uid));
+  const snap=await getDoc(doc(db,"users",user.uid));
   if(!snap.exists() || snap.data().role==="pending"){alert("Noch nicht freigeschaltet"); signOut(auth); return;}
   loginPanel.style.display="none"; mainContent.style.display="block";
   if(snap.data().role==="admin") loadPending();
 });
 
-// --- Add Entry ---
-addBtn.onclick=()=>{
+// Add Entry
+addBtn.onclick=async()=>{
   if(!name.value||!race.value||!wowClass.value||!crime.value){alert("Bitte alle Felder ausfüllen"); return;}
-  addDoc(collection(db,"entries"),{
+  await addDoc(collection(db,"entries"),{
     uid: auth.currentUser.uid,
-    name:name.value, race:race.value, class:wowClass.value, crime:crime.value,
-    up:0, down:0, createdAt:serverTimestamp()
+    name: name.value, race: race.value, class: wowClass.value, crime: crime.value,
+    up:0, down:0, createdAt: serverTimestamp()
   });
+  name.value=""; race.value=""; wowClass.value=""; crime.value="";
 };
 
-// --- Load Entries live ---
+// Load Entries
 onSnapshot(collection(db,"entries"), snap=>{
   list.innerHTML="";
   snap.forEach(d=>{
@@ -207,7 +202,7 @@ onSnapshot(collection(db,"entries"), snap=>{
   });
 });
 
-// --- Voting ---
+// Voting
 window.vote=async(entryId,type)=>{
   const user=auth.currentUser;
   if(!user){alert("Bitte einloggen"); return;}
@@ -227,7 +222,7 @@ window.vote=async(entryId,type)=>{
   (type==="up"?soundUp:soundDown).play();
 };
 
-// --- Edit/Delete ---
+// Edit/Delete
 window.editEntry=async(id,name,raceVal,classVal,crime)=>{
   const newName=prompt("Neuer Name:",name);
   const newRace=prompt("Neue Rasse:",raceVal);
@@ -237,7 +232,7 @@ window.editEntry=async(id,name,raceVal,classVal,crime)=>{
 };
 window.deleteEntry=async(id)=>{if(confirm("Eintrag löschen?")) await deleteDoc(doc(db,"entries",id));};
 
-// --- Admin Pending ---
+// Admin Pending
 async function loadPending(){
   const snaps=await getDocs(collection(db,"users"));
   pendingList.innerHTML="";

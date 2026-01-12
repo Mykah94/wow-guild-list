@@ -99,11 +99,14 @@ import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, doc, getD
 
 /* Firebase Config */
 const firebaseConfig = {
-  apiKey:"DEIN_API_KEY",
-  authDomain:"DEIN_PROJECT.firebaseapp.com",
-  projectId:"DEIN_PROJECT_ID",
-  appId:"DEINE_APP_ID"
+apiKey: "AIzaSyBOko8Wg-jCvz7aRPleNcbJCm8u2CYtjps",
+authDomain: "wow-hs-liste.firebaseapp.com",
+projectId: "wow-hs-liste",
+storageBucket: "wow-hs-liste.firebasestorage.app",
+messagingSenderId: "180764359810",
+appId: "1:180764359810:web:03cef19546dcc32081889b"
 };
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -266,3 +269,4 @@ searchInput.oninput=filterRace.onchange=filterClass.onchange=render;
 </div>
 </body>
 </html>
+
